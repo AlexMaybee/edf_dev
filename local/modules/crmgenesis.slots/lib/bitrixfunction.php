@@ -1,7 +1,17 @@
 <?php
 namespace Crmgenesis\Slots;
 
+use Crmgenesis\Slots\SlotsTable;
+
 class Bitrixfunction{
+
+    public function checkUserIfAdmin(){
+        return $GLOBALS['USER']->IsAdmin();
+    }
+
+    public function returnCurUserId(){
+        return $GLOBALS['USER']->getId();
+    }
 
     public function logData($data){
         $file = $_SERVER["DOCUMENT_ROOT"].'/zzz.log';
@@ -19,6 +29,16 @@ class Bitrixfunction{
             'select' => $select,
             'filter' => $filter,
         ])->fetchAll();
+    }
+
+    //Моя таблица Slots
+    public function addSlot($fields){
+        $result = ['result' => false,'errors' => []];
+        $addResult = SlotsTable::add($fields);
+        (!$addResult->isSuccess())
+            ? $result['errors'] = $addResult->getErrorMessages()
+            : $result['result'] = $addResult->getData();
+        return $result;
     }
 
 }

@@ -106,9 +106,11 @@ Vue.component('calendar', {
 
             select: function(startDate, endDate, jsEvent, view, resource) {
                 startDate = moment(startDate).format('YYYY-MM-DDTHH:mm');
-                //endDate = moment(endDate).add(90, 'minutes').format('YYYY-MM-DDTHH:mm');
-                endDate = moment(startDate).add(self.settings.slotMinute, 'minutes').format('YYYY-MM-DDTHH:mm');
+                endDate = moment(endDate).format('YYYY-MM-DDTHH:mm');
 
+                //добавляем в переменные и показываем попап
+                app.selectSlot(startDate,endDate);
+                
                 console.log(startDate);
                 console.log(endDate);
             },

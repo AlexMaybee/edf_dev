@@ -6,8 +6,16 @@ use Bitrix\Main\Loader;
 
 Loader::includeSharewareModule("crmgenesis.slots");
 
+$data = (array)json_decode(file_get_contents("php://input"));
+
+
+//запрос евентов календаря при загрузке страницы или смены значения в селекте пользователей
+
 
 //запрос пользователей для фильтра (пока одного)
-if($_POST['action'] == 'getValuesListForFilters')
-    Crmgenesis\Slots\Filter::getFilterValues();
+if($data['action'] == 'checkRoleAndGetFilters')
+    Crmgenesis\Slots\Filter::checkRoleAndGetFilterValues();
 
+//reserveWorkHoursToSlot
+if($data['action'] == 'reserveWorkHoursToSlot')
+    Crmgenesis\Slots\Calendar::addWorkHoursSlot($data);

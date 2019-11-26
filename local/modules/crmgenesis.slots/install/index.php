@@ -78,6 +78,10 @@ class crmgenesis_slots extends \CModule{
         $this->UnInstallEvents();
         $this->UnInstallFiles();
         $this->UnInstallDB();
+
+        //удаление сохраненных в COption
+        //\Bitrix\Main\Config\Option::delete($this->MODULE_ID);
+
         ModuleManager::unRegisterModule($this->MODULE_ID);
     }
 

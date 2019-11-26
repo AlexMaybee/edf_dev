@@ -2,24 +2,35 @@
 
 namespace Crmgenesis\Slots;
 
+use Crmgenesis\Exchange1c\Bitrixfunctions;
 use \Crmgenesis\Slots\Bitrixfunction,
     \Bitrix\Main\Localization\Loc;
 
 class Filter{
 
-    public function getFilterValues(){
+    public function checkRoleAndGetFilterValues(){
         $result = [
-            'employees' => [],
-            'errors' => [],
+            'users' => [],
+            'isAdmin' => 0,
+            'curUserId' => 0,
+            'error' => false,
         ];
 
-        $userList = Bitrixfunction::getUsersByFilter(['ACTIVE' => 'Y'],['ID','LAST_NAME','NAME']);
-        if(!$userList) $result['errors'][] = Loc::getMessage('CRM_GENESIS_USERS_FOR_FILTER_GET_ERROR');
-        else{
-            $result['employees'][] = ['ID' => '', 'NAME' => Loc::getMessage('CRM_GENESIS_NOT_SELECTED')];
-            foreach ($userList as $user)
-                $result['employees'][] = ['ID' => $user['ID'], 'NAME' => $user['LAST_NAME'].' '.$user['NAME']];
+        $result['curUserId'] = Bitrixfunction::returnCurUserId();
+
+        if(Bitrixfunction::checkUserIfAdmin()){
+            $result['isAdmin'] = 1;
+
+            $userList = Bitrixfunction::getUsersByFilter(['ACTIVE' => 'Y'],['ID','LAST_NAME','NAME']);
+            if(!$userList) $result['error'] = Loc::getMessage('CRM_GENESIS_USERS_FOR_FILTER_GET_ERROR');
+            else{
+                $result['users'][] = ['ID' => '', 'NAME' => Loc::getMessage('CRM_GENESIS_NOT_SELECTED')];
+                foreach ($userList as $user)
+                    $result['users'][] = ['ID' => $user['ID'], 'NAME' => $user['LAST_NAME'].' '.$user['NAME']];
+            }
         }
+
+
         Bitrixfunction::sentAnswer($result);
     }
 

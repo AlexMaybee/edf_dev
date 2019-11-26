@@ -32,15 +32,15 @@ class SlotsTable extends \Bitrix\Main\Entity\DataManager{
                 'title' => 'DATE_TO',
             ]),
             'STATUS_ID' => new \Bitrix\Main\Entity\IntegerField('STATUS_ID', [
-                'required' => true,
+//                'required' => true,
                 'title' => 'STATUS_ID',
             ]),
             'SERVICE_ID' => new \Bitrix\Main\Entity\IntegerField('SERVICE_ID', [
-                'required' => true,
+//                'required' => true,
                 'title' => 'SERVICE_ID',
             ]),
             'LOCATION_ID' => new \Bitrix\Main\Entity\IntegerField('LOCATION_ID', [
-                'required' => true,
+//                'required' => true,
                 'title' => 'LOCATION_ID',
             ]),
             'USER_ID' => new \Bitrix\Main\Entity\IntegerField('USER_ID', [

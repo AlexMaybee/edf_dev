@@ -35,16 +35,45 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 
 <div id="slot_calendar">
 
-    <div class="filters">
-        <select class="custom-select" v-model="filters.employee">
-            <option selected>Open this select menu</option>
-            <option value="1">One</option>
-            <option value="2">Two</option>
-            <option value="3">Three</option>
+    <div class="filters" v-if="isAdmin">
+        <select class="custom-select col-md-4 mb-3" v-model="filters.userID">
+            <option v-for="user in filterValLists.users" :value="user.ID">{{user.NAME}}</option>
         </select>
     </div>
 
     <calendar :events="events" :resources="resources" :editable="true" :settings="settings"></calendar>
+
+
+    <!-- Modal change Category id deal -->
+    <div class="modal fade" id="selectSlot" tabindex="-1" role="dialog" aria-labelledby="selectSlotLabel" aria-hidden="true" ref="vuemodalchangeCategoryDeal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="selectSlotLabel">Сменить направление</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="sendFormCategoryDeal" @submit.prevent="reserveSlot" method="POST">
+                        <div class="form-group required">
+                            <label class="form-control-label" for="dateFrom">Начало:</label>
+                            <input type="datetime-local" id="dateFrom" name="dateFrom" class="form-control"
+                                   disabled="disabled" v-model="filters.dateFrom">
+                        </div>
+                        <div class="form-group required">
+                            <label class="form-control-label" for="dateTo">Окончание:</label>
+                            <input type="datetime-local" id="dateTo" name="dateTo" class="form-control"
+                                   disabled="disabled" v-model="filters.dateTo">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </div>
 
