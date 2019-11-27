@@ -88,6 +88,9 @@ Vue.component('calendar', {
                 getResourcesList();
                 function getResourcesList() {
                     callback(self.resources)
+
+                    //здесь запрос инфы для текущего юзера!!!
+                    console.log('zapros infy!!!');
                 }
             },
             // eventSources: [self.events],
@@ -109,7 +112,7 @@ Vue.component('calendar', {
                 endDate = moment(endDate).format('YYYY-MM-DDTHH:mm');
 
                 //добавляем в переменные и показываем попап
-                app.selectSlot(startDate,endDate);
+                app.openEventPopup(startDate,endDate);
                 
                 console.log(startDate);
                 console.log(endDate);
@@ -133,7 +136,7 @@ Vue.component('calendar', {
 
             viewDestroy: function (view, element) {
                 app.defaultDateCustom = moment(view.start);
-                app.FilterEventsDate(moment(view.start).format('YYYY-MM-DD'));
+                app.FilterEventsDate(view.start);
             },
 
             schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'

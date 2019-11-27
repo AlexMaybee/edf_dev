@@ -2,7 +2,6 @@
 
 namespace Crmgenesis\Slots;
 
-use Crmgenesis\Exchange1c\Bitrixfunctions;
 use \Crmgenesis\Slots\Bitrixfunction,
     \Bitrix\Main\Localization\Loc;
 

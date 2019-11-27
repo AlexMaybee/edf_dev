@@ -41,4 +41,13 @@ class Bitrixfunction{
         return $result;
     }
 
+    public function getSlotList($filter,$select,$order=[]){
+        return $record = SlotsTable::getList([
+            'select' => $select,
+            'filter' => $filter,
+            'order' => $order,
+        ])->fetchAll();
+    }
+
+
 }

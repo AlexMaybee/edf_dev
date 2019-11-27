@@ -36,8 +36,8 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 <div id="slot_calendar">
 
     <div class="filters" v-if="isAdmin">
-        <select class="custom-select col-md-4 mb-3" v-model="filters.userID">
-            <option v-for="user in filterValLists.users" :value="user.ID">{{user.NAME}}</option>
+        <select @change="getEventsByFilter" class="custom-select col-md-4 mb-3" v-model="selectedFilter.curUserId">
+            <option v-for="user in selectedFilter.usersArr" :value="user.ID">{{user.NAME}}</option>
         </select>
     </div>
 
@@ -45,26 +45,26 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 
 
     <!-- Modal change Category id deal -->
-    <div class="modal fade" id="selectSlot" tabindex="-1" role="dialog" aria-labelledby="selectSlotLabel" aria-hidden="true" ref="vuemodalchangeCategoryDeal">
+    <div class="modal fade" id="addEventToCalendar" tabindex="-1" role="dialog" aria-labelledby="addEventToCalendarLabel" aria-hidden="true" ref="vuemodalchangeCategoryDeal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="selectSlotLabel">Сменить направление</h5>
+                    <h5 class="modal-title" id="addEventToCalendarLabel">Подтвердите евент</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="sendFormCategoryDeal" @submit.prevent="reserveSlot" method="POST">
+                    <form id="sendFormCategoryDeal" @submit.prevent="addEventToCalendar" method="POST">
                         <div class="form-group required">
-                            <label class="form-control-label" for="dateFrom">Начало:</label>
-                            <input type="datetime-local" id="dateFrom" name="dateFrom" class="form-control"
-                                   disabled="disabled" v-model="filters.dateFrom">
+                            <label class="form-control-label" for="slotDateFrom">Начало:</label>
+                            <input type="datetime-local" id="slotDateFrom" name="slotDateFrom" class="form-control"
+                                   disabled="disabled" v-model="selectedFilter.slotDateFrom">
                         </div>
                         <div class="form-group required">
-                            <label class="form-control-label" for="dateTo">Окончание:</label>
-                            <input type="datetime-local" id="dateTo" name="dateTo" class="form-control"
-                                   disabled="disabled" v-model="filters.dateTo">
+                            <label class="form-control-label" for="slotDateTo">Окончание:</label>
+                            <input type="datetime-local" id="slotDateTo" name="slotDateTo" class="form-control"
+                                   disabled="disabled" v-model="selectedFilter.slotDateTo">
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Сохранить</button>
