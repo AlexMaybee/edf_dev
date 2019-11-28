@@ -36,8 +36,8 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 <div id="slot_calendar">
 
     <div class="filters" v-if="isAdmin">
-        <select @change="getEventsByFilter" class="custom-select col-md-4 mb-3" v-model="selectedFilter.curUserId">
-            <option v-for="user in selectedFilter.usersArr" :value="user.ID">{{user.NAME}}</option>
+        <select @change="getCalendarEvents" class="custom-select col-md-4 mb-3" v-model="seletedUserId">
+            <option v-for="user in filterValueLists.users" :value="user.ID">{{user.NAME}}</option>
         </select>
     </div>
 
@@ -57,14 +57,14 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
                 <div class="modal-body">
                     <form id="sendFormCategoryDeal" @submit.prevent="addEventToCalendar" method="POST">
                         <div class="form-group required">
-                            <label class="form-control-label" for="slotDateFrom">Начало:</label>
-                            <input type="datetime-local" id="slotDateFrom" name="slotDateFrom" class="form-control"
-                                   disabled="disabled" v-model="selectedFilter.slotDateFrom">
+                            <label class="form-control-label" for="workDayStart">Начало:</label>
+                            <input type="datetime-local" id="workDayStart" name="workDayStart" class="form-control"
+                                   disabled="disabled" v-model="workDayStart">
                         </div>
                         <div class="form-group required">
-                            <label class="form-control-label" for="slotDateTo">Окончание:</label>
-                            <input type="datetime-local" id="slotDateTo" name="slotDateTo" class="form-control"
-                                   disabled="disabled" v-model="selectedFilter.slotDateTo">
+                            <label class="form-control-label" for="workDayFinish">Окончание:</label>
+                            <input type="datetime-local" id="workDayFinish" name="workDayFinish" class="form-control"
+                                   disabled="disabled" v-model="workDayFinish">
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Сохранить</button>

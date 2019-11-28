@@ -10,16 +10,20 @@ Loader::includeSharewareModule("crmgenesis.slots");
 $data = json_decode(json_encode(json_decode(file_get_contents("php://input"))),true);
 
 
-// 1.Запрос пользователей для фильтра (пока одного)
-if($data['action'] == 'checkRoleAndGetFilters')
-    Crmgenesis\Slots\Filter::checkRoleAndGetFilterValues();
+// # 1 Получение роли и ID пользователя
+if($data['action'] == 'getUserRoleAndId')
+    Crmgenesis\Slots\Filter::getUserRoleAndId();
 
-// 2.запрос евентов календаря выбранного пользователя при загрузке страницы или смены значения в селекте пользователей
-if($data['action'] == 'getEventsByFilter')
-    Crmgenesis\Slots\Calendar::getEventsByFilter($data['filters']);
+// # 2 Получение списков значений в фильтры, если пользователь == админ
+if($data['action'] == 'getDataForFilters')
+    Crmgenesis\Slots\Filter::getDataForFilters();
 
+// # 3 Получение событий календаря по фильтру
+if($data['action'] == 'getCalendarEvents')
+    Crmgenesis\Slots\Calendar::getCalendarEvents($data['filters']);
 
-
-//Резервация нового слота
+// # 4 Создание события в календаре при подтверждении в Popup
 if($data['action'] == 'addEventToCalendar')
     Crmgenesis\Slots\Calendar::addEventToCalendar($data['filters']);
+
+// #5 Удаление рабочего дня из Popup
