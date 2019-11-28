@@ -41,6 +41,15 @@ class Bitrixfunction{
         return $result;
     }
 
+    public function deleteSlot($id){
+        $result = ['result' => false,'errors' => []];
+        $delResult = SlotsTable::delete($id);
+        (!$delResult->isSuccess())
+            ? $result['errors'] = $delResult->getErrorMessages()
+            : $result['result'] = $delResult;
+        return $result;
+    }
+
     public function getSlotList($filter,$select,$order=[]){
         return $record = SlotsTable::getList([
             'select' => $select,

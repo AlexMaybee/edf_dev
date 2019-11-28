@@ -66,6 +66,15 @@ class Calendar{
         Bitrixfunction::sentAnswer($result);
     }
 
+    /*
+    * @method метод для удаления выбранного слота сотрудника по ID
+    * @return bool
+    */
+    public function deleteSlotFromCalendar($filters){
+        $result = Bitrixfunction::deleteSlot($filters['seletedSlotId']);
+        Bitrixfunction::sentAnswer($result);
+    }
+
 
     /*@method: в зависимости от даты начала эвента меняем цвет
     @return: array, цвет блока + цвет текста*/

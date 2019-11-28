@@ -44,7 +44,7 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
     <calendar :events="events" :resources="resources" :editable="true" :settings="settings"></calendar>
 
 
-    <!-- Modal change Category id deal -->
+    <!-- Modal add Slots id deal -->
     <div class="modal fade" id="workDayInCalendar" tabindex="-1" role="dialog" aria-labelledby="workDayInCalendarLabel" aria-hidden="true" ref="vuemodalchangeCategoryDeal">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -55,7 +55,8 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form id="sendFormCategoryDeal" @submit.prevent="addWorkPeriodToCalendar" method="POST">
+                    <!--@submit.prevent="addWorkPeriodToCalendar"-->
+                    <form id="sendFormCategoryDeal" onsubmit="return false" method="POST">
                         <div class="form-group required">
                             <label class="form-control-label" for="workDayStart">Начало:</label>
                             <input type="datetime-local" id="workDayStart" name="workDayStart" class="form-control"
@@ -67,7 +68,8 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
                                    disabled="disabled" v-model="workDayFinish">
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <button v-if="!seletedSlotId" @click="addWorkPeriodToCalendar" class="btn btn-primary">Сохранить</button>
+                            <button v-if="seletedSlotId" @click="deleteSlot" class="btn btn-danger">Удалить</button>
                         </div>
                     </form>
                 </div>

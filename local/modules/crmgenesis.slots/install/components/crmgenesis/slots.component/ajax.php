@@ -27,3 +27,5 @@ if($data['action'] == 'addWorkPeriodToCalendar')
     Crmgenesis\Slots\Calendar::addWorkPeriodToCalendar($data['filters']);
 
 // #5 Удаление рабочего дня из Popup
+if($data['action'] == 'deleteSlot')
+    Crmgenesis\Slots\Calendar::deleteSlotFromCalendar($data['filters']);

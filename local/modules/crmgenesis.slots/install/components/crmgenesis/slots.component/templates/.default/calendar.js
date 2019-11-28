@@ -88,9 +88,6 @@ Vue.component('calendar', {
                 getResourcesList();
                 function getResourcesList() {
                     callback(self.resources)
-
-                    //здесь запрос инфы для текущего юзера!!!
-                    console.log('zapros infy!!!');
                 }
             },
             // eventSources: [self.events],
@@ -112,7 +109,7 @@ Vue.component('calendar', {
                 endDate = moment(endDate).format('YYYY-MM-DDTHH:mm');
 
                 //добавляем в переменные и показываем попап
-                app.openWorkDayAddPopup(startDate,endDate);
+                app.openWorkDayAddPopup(startDate,endDate,'');
                 
                 console.log(startDate);
                 console.log(endDate);
@@ -121,8 +118,12 @@ Vue.component('calendar', {
             eventClick: function(event) {
                 var char_one = event.id.charAt(0);
                 var char_two = event.id.charAt(0);
-                console.log(event);
 
+                //popup создания/удаления слота
+                app.openWorkDayAddPopup(
+                    moment(event.start._i).format('YYYY-MM-DDTHH:mm'),
+                    moment(event.end._i).format('YYYY-MM-DDTHH:mm'),
+                    event.id)
             },
 
             eventDrop: function(event) {

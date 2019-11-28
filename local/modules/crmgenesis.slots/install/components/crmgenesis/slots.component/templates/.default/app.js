@@ -21,6 +21,7 @@ let app = new Vue({
             request_url: '/local/components/crmgenesis/slots.component/ajax.php',
             settings: {minTime: '07:00:00', maxTime: '22:30:00', slotDuration: '00:60:00', slotMinute: '60'},
             seletedUserId: '',
+            seletedSlotId: '', //id слота, если
             workDayStart: '', //дата начала рабочего дня при выборе
             workDayFinish: '', //дата окончания раюочего дня при выборе
         }
@@ -142,12 +143,16 @@ let app = new Vue({
         },
 
         //открытие попапа при выборе пустых слотов
-        openWorkDayAddPopup: function (dateFrom,dateTo) {
+        openWorkDayAddPopup: function (dateFrom,dateTo,slotId) {
             this.workDayStart = dateFrom;
             this.workDayFinish = dateTo;
+            this.seletedSlotId = slotId;
             $('#workDayInCalendar').modal('show');
+
+            console.log('PopUp:',dateFrom,dateTo,slotId,this.seletedSlotId);
         },
 
+        //создание слотов в календаре (разеляем выбраный день на слоты по 1 часу)
         addWorkPeriodToCalendar: function () {
             if(this.seletedUserId){
                 axios.post(this.request_url,
@@ -169,7 +174,44 @@ let app = new Vue({
 
                         //перезапуск функции получения евентов на выбранную неделю
                         this.getCalendarEvents();
+
+                        //очищаем поля с датами периодов и ID слота
+                        this.workDayStart = '';
+                        this.workDayFinish = '';
+                        this.seletedSlotId = '';
                     }).catch(err => console.log(err));
+            }
+        },
+
+        //удаление слота из календаря
+        deleteSlot: function () {
+            if(this.seletedUserId){
+                console.log('Del slot # ' + this.seletedSlotId);
+
+                axios.post(this.request_url,
+                    {action:'deleteSlot',
+                        filters: {
+                            'seletedSlotId':this.seletedSlotId,
+                        },
+                    }).then(response => {
+
+                    console.log('deleteSlot: ',response.data)
+
+                    //если сохранилось, то закрываем попап
+                    if(response.data.result){
+                        $('#workDayInCalendar').modal('hide');
+                    }
+                    else console.log('v-ERROR:',response.data.errors)
+
+                    //перезапуск функции получения евентов на выбранную неделю
+                    this.getCalendarEvents();
+
+                    //очищаем поля с датами периодов и ID слота
+                    this.workDayStart = '';
+                    this.workDayFinish = '';
+                    this.seletedSlotId = '';
+                }).catch(err => console.log(err));
+
             }
         },
 
