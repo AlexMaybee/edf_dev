@@ -36,9 +36,17 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 <div id="slot_calendar">
 
     <div class="filters" v-if="isAdmin">
-        <select @change="getCalendarEvents" class="custom-select col-md-4 mb-3" v-model="seletedUserId">
+        <select @change="getCalendarEvents" class="custom-select col-md-3 mb-3" v-model="seletedUserId">
             <option v-for="user in filterValueLists.users" :value="user.ID">{{user.NAME}}</option>
         </select>
+    </div>
+    <div>
+        <div>
+            <div class="week-work-hours-outer mb-3">
+                <div><span>Отмечено за неделю <span v-model="workHoursThisWeek">{{workHoursThisWeek}} </span>часов</span></div>
+                <div><span>Отмечено за месяц <span v-model="workHoursThisMonth">{{workHoursThisMonth}} </span>часов</span></div>
+            </div>
+        </div>
     </div>
 
     <calendar :events="events" :resources="resources" :editable="true" :settings="settings"></calendar>

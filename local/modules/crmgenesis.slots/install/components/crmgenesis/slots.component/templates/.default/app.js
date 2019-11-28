@@ -24,6 +24,8 @@ let app = new Vue({
             seletedSlotId: '', //id слота, если
             workDayStart: '', //дата начала рабочего дня при выборе
             workDayFinish: '', //дата окончания раюочего дня при выборе
+            workHoursThisWeek: 0,
+            workHoursThisMonth: 0,
         }
     },
 
@@ -101,6 +103,7 @@ let app = new Vue({
         },
 
         //28.11.2019 Переделка функции получения записей календаря в промежутке выбранной недели +  id выбранного пользователя
+        // ДОБАВИТЬ подсчет кол-ва выбранных часов за неделю + за месяц
         getCalendarEvents: function(){
 
             if(this.seletedUserId) {
@@ -167,7 +170,7 @@ let app = new Vue({
                         console.log('addWorkPeriodToCalendar: ',response.data)
 
                         //если сохранилось, то закрываем попап
-                        if(response.data.result){
+                        if(response.data.result.length > 0){
                             $('#workDayInCalendar').modal('hide');
                         }
                         else console.log('v-ERROR:',response.data.errors)

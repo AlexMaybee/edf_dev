@@ -51,17 +51,52 @@ class Calendar{
     * @return events by filter for cur user
     */
     public function addWorkPeriodToCalendar($filters){
-        $result = ['errors' => [],'result' => false];
+        $result = ['errors' => [],'result' => []];
 
-        $addRes = Bitrixfunction::addSlot([
-            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['workDayStart'])),"d.m.Y H:i:s"),
-            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['workDayFinish'])),"d.m.Y H:i:s"),
-            'USER_ID' => $filters['seletedUserId'],
-        ]);
+        $start = date('d.m.Y H:i:s',strtotime($filters['workDayStart']));
+        $finish = date('d.m.Y H:i:s',strtotime($filters['workDayFinish']));
 
-        ($addRes['result'])
-            ? $result['result'] = $addRes['result']
-            : $result['errors'] = $addRes['errors'];
+        $intervalHours = Bitrixfunction::returnDiffBetweenDatesInCurFormat($start,$finish,'%R%h');
+
+        if($intervalHours > 0){
+            $strtH = 0;
+            $endH = 1;
+
+            while(strtotime($start.'+'.$strtH.' hour') < strtotime($finish)){
+                $result['test'][] = date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour'))
+                    .' - '.date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour'));
+
+                $addRes = Bitrixfunction::addSlot([
+                    'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
+                        date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour')),
+                        "d.m.Y H:i:s"),
+                    'DATE_TO' => new \Bitrix\Main\Type\DateTime(
+                        date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
+                        "d.m.Y H:i:s"),
+                    'USER_ID' => $filters['seletedUserId'],
+                ]);
+
+                ($addRes['result'])
+                    ? $result['result'][] = $addRes['result']
+                    : $result['errors'][] = $addRes['errors'];
+
+                $strtH++;
+                $endH++;
+            }
+        }
+
+        $result['H_interval'] = $intervalHours;
+
+
+//        $addRes = Bitrixfunction::addSlot([
+//            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['workDayStart'])),"d.m.Y H:i:s"),
+//            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['workDayFinish'])),"d.m.Y H:i:s"),
+//            'USER_ID' => $filters['seletedUserId'],
+//        ]);
+//
+//        ($addRes['result'])
+//            ? $result['result'] = $addRes['result']
+//            : $result['errors'] = $addRes['errors'];
 
         Bitrixfunction::sentAnswer($result);
     }
