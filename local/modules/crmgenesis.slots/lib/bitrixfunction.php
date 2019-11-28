@@ -49,5 +49,11 @@ class Bitrixfunction{
         ])->fetchAll();
     }
 
+    public function returnDiffBetweenDatesInCurFormat($curD,$diffD,$form){
+        $curDate = new \DateTime($curD); //Сравниваемая дата (текущая) Сюда нужно передавать дату для сравнения DateTime('2017-06-22').
+        $diffDate = new \DateTime($diffD);
+        $difference = $curDate->diff($diffDate);
+        return $difference->format($form);
+    }
 
 }

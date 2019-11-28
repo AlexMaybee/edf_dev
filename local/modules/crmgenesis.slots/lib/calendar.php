@@ -29,14 +29,18 @@ class Calendar{
 
         if($eventsList)
             foreach ($eventsList as $event){
+
+                //цвет блока дня в зависимости от даты
+                $colors = self::selectActivityColor($event['DATE_FROM']);
+
                 $result['result'][] = [
                     'id' => $event['ID'],
                     'title' => 'Встреча #' . $event['TITLE'],
                     'start' => date('Y-m-d H:i:s', strtotime($event['DATE_FROM'])),
                     'end' => date('Y-m-d H:i:s', strtotime($event['DATE_TO'])),
                     'resourceId' => $event['USER_ID'],
-                    'color' => '#000',
-
+                    'color' => $colors['block'],
+                    'textColor' => $colors['text'],
                 ];
             }
 //            $result['result'] = $eventsList;
@@ -63,5 +67,34 @@ class Calendar{
 
         Bitrixfunction::sentAnswer($result);
     }
+
+
+    private function selectActivityColor($dateStart){
+        $diffRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+            date ('d.m.Y'), date('d.m.Y',strtotime($dateStart)),'%R%a');
+        switch (true){
+            case ($diffRes < 0): //прошлый день
+                $color = [
+                    'block' => '#000',
+                    'text' => '#fff'
+                ];
+                break;
+            case ($diffRes > 0): //будущий день
+                $color = [
+                    'block' => '#007bff',
+                    'text' => '#fff'
+                ];
+                break;
+            default:   //текущий день
+                $color = [
+                    'block' => '#d00000',
+                    'text' => '#fff'
+                    ];
+                break;
+        }
+        return $color;
+//        return $diffRes;
+    }
+
 
 }

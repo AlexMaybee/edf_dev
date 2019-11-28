@@ -147,6 +147,7 @@ let app = new Vue({
                         if(response.data.result){
                             $('#addEventToCalendar').modal('hide');
                             //перезапуск функции получения евентов на выбранную неделю
+                            self.getEventsByFilter();
                         }
                         else console.log('v-ERROR:',response.data.errors)
 
