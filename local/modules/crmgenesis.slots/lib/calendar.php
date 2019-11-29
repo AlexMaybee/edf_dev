@@ -10,7 +10,7 @@ class Calendar{
      * @method: Get Calendar Events By Filter: Start/End week date + selected user ID
      * @return: event array
      * */
-    public function getCalendarEvents($filters){
+    public function getUserSlots($filters){
         $result = [
             'errors' => [],
             'result' => [],

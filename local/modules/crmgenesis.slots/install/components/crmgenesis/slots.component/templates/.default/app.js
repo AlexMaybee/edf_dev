@@ -50,8 +50,12 @@ let app = new Vue({
         //изменение понедельника календаря -> запрос новых евентов по датам
         firstWeekDay: function () {
             console.log('first week day changed to ',this.firstWeekDay);
-            this.getCalendarEvents();
-        }
+            this.getUserSlots();
+        },
+        seletedUserId: function () {
+            this.getUserSlots();
+        },
+
     },
 
     events: {},
@@ -76,7 +80,7 @@ let app = new Vue({
                     // console.log('seleted User Id:',this.seletedUserId,this.isAdmin)
 
                     //здесь запрос данных календаря при загрузке для конкретного пользователя
-                    this.getCalendarEvents();
+                    this.getUserSlots();
                     // console.log('Monday Date is:', this.firstWeekDay);
 
                 }
@@ -104,12 +108,12 @@ let app = new Vue({
 
         //28.11.2019 Переделка функции получения записей календаря в промежутке выбранной недели +  id выбранного пользователя
         // ДОБАВИТЬ подсчет кол-ва выбранных часов за неделю + за месяц
-        getCalendarEvents: function(){
+        getUserSlots: function(){
 
             if(this.seletedUserId) {
                 axios.post(this.request_url,
                     {
-                        action: 'getCalendarEvents',
+                        action: 'getUserSlots',
                         filters:
                             {
                                 'firstWeekDay': this.firstWeekDay,
@@ -176,7 +180,7 @@ let app = new Vue({
                         else console.log('v-ERROR:',response.data.errors)
 
                         //перезапуск функции получения евентов на выбранную неделю
-                        this.getCalendarEvents();
+                        this.getUserSlots();
 
                         //очищаем поля с датами периодов и ID слота
                         this.workDayStart = '';
@@ -207,7 +211,7 @@ let app = new Vue({
                     else console.log('v-ERROR:',response.data.errors)
 
                     //перезапуск функции получения евентов на выбранную неделю
-                    this.getCalendarEvents();
+                    this.getUserSlots();
 
                     //очищаем поля с датами периодов и ID слота
                     this.workDayStart = '';

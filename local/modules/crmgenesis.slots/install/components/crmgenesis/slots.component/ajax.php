@@ -19,8 +19,8 @@ if($data['action'] == 'getDataForFilters')
     Crmgenesis\Slots\Filter::getDataForFilters();
 
 // # 3 Получение рабочих дней календаря по фильтру
-if($data['action'] == 'getCalendarEvents')
-    Crmgenesis\Slots\Calendar::getCalendarEvents($data['filters']);
+if($data['action'] == 'getUserSlots')
+    Crmgenesis\Slots\Calendar::getUserSlots($data['filters']);
 
 // # 4 Создание рабочего дня в календаре при подтверждении в Popup
 if($data['action'] == 'addWorkPeriodToCalendar')
