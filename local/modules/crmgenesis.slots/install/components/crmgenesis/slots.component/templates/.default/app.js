@@ -58,9 +58,9 @@ let app = new Vue({
             console.log('first week day changed to ',this.firstWeekDay);
             this.getUserSlots();
         },
-        seletedUserId: function () {
-            this.getUserSlots();
-        },
+        // seletedUserId: function () {
+        //     this.getUserSlots();
+        // },
 
     },
 
