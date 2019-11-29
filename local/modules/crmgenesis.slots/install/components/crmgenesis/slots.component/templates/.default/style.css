@@ -3,3 +3,31 @@
     color: red;
     font-size: 2em;
 }
+
+
+/*классы индикаторов - цвета/шрифт*/
+.indicator-zero-color{
+    font-weight: bold;
+    color: #f20200;
+}
+.indicator-bad-color{
+    font-weight: bolder;
+    color: #f2cb01;
+}
+.indicator-better-color{
+    font-weight: bolder;
+    color: #2346f2;
+}
+.indicator-good-color{
+    font-weight: bold;
+    color: #33ca25;
+}
+.indicator-best-color{
+    font-weight: bold;
+    color: #12a70e;
+}
+.indicator-over-color{
+    font-weight: bold;
+    font-size: larger;
+    color: #e46400;
+}

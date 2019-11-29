@@ -24,8 +24,14 @@ let app = new Vue({
             seletedSlotId: '', //id слота, если
             workDayStart: '', //дата начала рабочего дня при выборе
             workDayFinish: '', //дата окончания раюочего дня при выборе
-            workHoursThisWeek: 0,
-            workHoursThisMonth: 0,
+            workHoursThisWeek: {
+                hours: 0,
+                class: '',
+            },
+            workHoursThisMonth: {
+                hours: 0,
+                class: '',
+            },
         }
     },
 
@@ -107,7 +113,7 @@ let app = new Vue({
         },
 
         //28.11.2019 Переделка функции получения записей календаря в промежутке выбранной недели +  id выбранного пользователя
-        // ДОБАВИТЬ подсчет кол-ва выбранных часов за неделю + за месяц
+        // + добавлен подсчет кол-ва выбранных часов за неделю + за месяц
         getUserSlots: function(){
 
             if(this.seletedUserId) {
@@ -122,8 +128,11 @@ let app = new Vue({
                             },
                     }).then(response => {
 
+                        this.workHoursThisWeek = response.data.workHoursThisWeek;
+                        this.workHoursThisMonth = response.data.workHoursThisMonth;
+
                     //тупо передаем значение, если даже пусто, т.к. пользователя можно выбрать в фильтре другого
-                    this.events = response.data.result
+                    this.events = response.data.result;
 
                     console.log('Calendar Events for User', response.data);
 

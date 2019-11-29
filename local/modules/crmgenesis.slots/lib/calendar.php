@@ -6,6 +6,9 @@ use \Crmgenesis\Slots\Bitrixfunction,
 
 class Calendar{
 
+    const WeekNormaHours = 40;
+    const MonthNormaHours = 160;
+
     /*
      * @method: Get Calendar Events By Filter: Start/End week date + selected user ID
      * @return: event array
@@ -14,14 +17,51 @@ class Calendar{
         $result = [
             'errors' => [],
             'result' => [],
+            'workHoursThisWeek' => [
+                'hours' => 0,
+                'class' => 'indicator-zero-color',
+            ],
+//            'workMinutesThisWeek' => 0,
+            'workHoursThisMonth' => [
+                'hours' => 0,
+                'class' => 'indicator-zero-color',
+            ],
+//            'workMinutesThisMonth' => 0,
 //            'filters' => $filters,
         ];
 
+        $firstMonthDay = date('01.m.Y',strtotime($filters['firstWeekDay']));
+        $lastMonthDay = date('t.m.Y',strtotime($filters['firstWeekDay']));
+//        $lastMonthDay = date('01.m.Y',strtotime($filters['firstWeekDay'].' +1 month'));
+
+
+
+
+        $result['1stDayOfMonth'] = $firstMonthDay;
+        $result['lastDayOfMonth'] = $lastMonthDay;
+
         $filter = [
-            '>DATE_FROM' => date('d.m.Y',strtotime($filters['firstWeekDay'])),
-            '<=DATE_TO' => date('d.m.Y',strtotime($filters['lastWeekDay'])),
+//            '>=DATE_FROM' => date('d.m.Y',strtotime($filters['firstWeekDay'])),
+//            '<=DATE_TO' => date('d.m.Y',strtotime($filters['lastWeekDay'])),
+            '>=DATE_FROM' => date('d.m.Y',strtotime($firstMonthDay)),
+//            '<=DATE_TO' => date('d.m.Y',strtotime($lastMonthDay)),
             'USER_ID' => $filters['seletedUserId'],
         ];
+
+        if(date('m',strtotime($lastMonthDay)) == date('m',strtotime($filters['lastWeekDay']))) {
+            $filter['<=DATE_TO'] = date('d.m.Y',strtotime($lastMonthDay.' +1 day'));
+//            $result['test_bool'] = 'cur Month!'.date('m',strtotime($lastMonthDay))
+//                .' - '.date('m',strtotime($filters['lastWeekDay']));
+        }
+        else{
+            $filter['<=DATE_TO'] = date('d.m.Y',strtotime($filters['lastWeekDay'].'+1 day'));
+//            $result['test_bool'] = 'NEXT! month!'.date('m',strtotime($lastMonthDay))
+//                .' - '.date('m',strtotime($filters['lastWeekDay']));
+        }
+
+//        $result['filter'] = $filter;
+
+//        $result['testWeekElems'] = [];
 
         $recordArr = SlotsTable::getList([
             'select' => ['*'],
@@ -30,17 +70,67 @@ class Calendar{
         ]);
 
         while($event = $recordArr->fetch()){
-            $colors = self::selectActivityColor($event['DATE_FROM']);
-            $result['result'][] = [
-                'id' => $event['ID'],
-                'title' => 'Встреча #' . $event['USER_ID'],
-                'start' => date('Y-m-d H:i:s', strtotime($event['DATE_FROM'])),
-                'end' => date('Y-m-d H:i:s', strtotime($event['DATE_TO'])),
-                'resourceId' => $event['USER_ID'],
-                'color' => $colors['block'],
-                'textColor' => $colors['text'],
-                'editable' => false, //запрет редактирования записи
-            ];
+
+            $diffStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%h');
+            $diffEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'].'+1 day')),
+                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%h');
+
+
+            $diffMonthStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($firstMonthDay)),
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%h');
+            $diffMonthEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($lastMonthDay.' +1 day')),
+                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%h');
+
+
+            $event['H'] = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),
+                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%h');
+            $event['M'] = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),
+                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%i');
+
+
+//            $result['testWeekElems'][$event['ID']] = [$event['H'],$event['M']];
+
+
+            //month
+            if($diffMonthStartRes >= 0 && $diffMonthEndRes <= 0){
+                $result['workHoursThisMonth']['hours'] += $event['H'];
+                $result['workHoursThisMonth']['hours'] += $event['M']/60;
+                $result['workHoursThisMonth']['class'] = self::getIndicatorColor($result['workHoursThisMonth']['hours'],self::MonthNormaHours);
+            }
+
+
+            //week
+            if($diffStartRes >= 0 && $diffEndRes <= 0){
+                $result['workHoursThisWeek']['hours'] += $event['H'];
+                $result['workHoursThisWeek']['hours'] += $event['M']/60;
+
+                $result['workHoursThisWeek']['class'] = self::getIndicatorColor($result['workHoursThisWeek']['hours'],self::WeekNormaHours);
+
+                $colors = self::selectActivityColor($event['DATE_FROM']);
+                $result['result'][] = [
+                    'id' => $event['ID'],
+                    'title' => 'Встреча #' . $event['ID'],
+                    'start' => date('Y-m-d H:i:s', strtotime($event['DATE_FROM'])),
+                    'end' => date('Y-m-d H:i:s', strtotime($event['DATE_TO'])),
+                    'resourceId' => $event['USER_ID'],
+                    'color' => $colors['block'],
+                    'textColor' => $colors['text'],
+                    'editable' => false, //запрет редактирования записи
+                    'h' => $event['H'], //запрет редактирования записи
+                    'm' => $event['M'], //запрет редактирования записи
+                ];
+
+            }
+
+//            $result['ALL'][$event['ID']] = $event;
+
         }
 
         Bitrixfunction::sentAnswer($result);
@@ -137,6 +227,31 @@ class Calendar{
                 break;
         }
         return $color;
+    }
+
+    //цвет индикатора часов календаря (неделя/месяц)
+    private function getIndicatorColor($hours,$periodNormaHours){
+        switch(true){
+            case (($hours/$periodNormaHours * 100) > 0 && ($hours/$periodNormaHours * 100) < 50):
+                $colorClass = 'indicator-bad-color';
+                break;
+            case (($hours/$periodNormaHours * 100) >= 50 && ($hours/$periodNormaHours * 100) < 80):
+                $colorClass = 'indicator-better-color';
+                break;
+            case (($hours/$periodNormaHours * 100) >= 80 && ($hours/$periodNormaHours * 100) < 95):
+                $colorClass = 'indicator-good-color';
+                break;
+            case (($hours/$periodNormaHours * 100) >= 95 && ($hours/$periodNormaHours * 100) <= 100):
+                $colorClass = 'indicator-best-color';
+                break;
+            case (($hours/$periodNormaHours * 100) > 100):
+                $colorClass = 'indicator-over-color';
+                break;
+            default:
+                $colorClass = 'indicator-zero-color';
+                break;
+        }
+        return $colorClass;
     }
 
 
