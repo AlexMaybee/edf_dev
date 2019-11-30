@@ -17,6 +17,7 @@ let app = new Vue({
             },
             firstWeekDay: '',
             isAdmin: false,
+            prevWeekSlotsNum: 0,
             resources: [],
             request_url: '/local/components/crmgenesis/slots.component/ajax.php',
             settings: {minTime: '07:00:00', maxTime: '22:30:00', slotDuration: '00:60:00', slotMinute: '60'},
@@ -47,8 +48,6 @@ let app = new Vue({
 
         //данные пользователя + загрузка евентов календаря
         this.getUserRoleAndId();
-
-
     },
 
     watch: {
@@ -115,7 +114,6 @@ let app = new Vue({
         //28.11.2019 Переделка функции получения записей календаря в промежутке выбранной недели +  id выбранного пользователя
         // + добавлен подсчет кол-ва выбранных часов за неделю + за месяц
         getUserSlots: function(){
-
             if(this.seletedUserId) {
                 axios.post(this.request_url,
                     {
@@ -130,6 +128,7 @@ let app = new Vue({
 
                         this.workHoursThisWeek = response.data.workHoursThisWeek;
                         this.workHoursThisMonth = response.data.workHoursThisMonth;
+                        this.prevWeekSlotsNum = response.data.prevWeekSlotsNum; //кол-во созданных слотов на прошлой неделе
 
                     //тупо передаем значение, если даже пусто, т.к. пользователя можно выбрать в фильтре другого
                     this.events = response.data.result;
@@ -231,6 +230,12 @@ let app = new Vue({
             }
         },
 
+        //копирование слотов с предыдущей недели
+        copyPreviousWeekSlots: function () {
+            if(this.seletedUserId) {
+
+            }
+        }
 
     }
 })

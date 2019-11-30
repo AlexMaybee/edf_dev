@@ -40,17 +40,23 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
             <option v-for="user in filterValueLists.users" :value="user.ID">{{user.NAME}}</option>
         </select>
     </div>
-    <div>
+    <div class="mb-3">
         <div>
-            <div class="week-work-hours-outer mb-3">
+            <div class="week-work-hours-outer">
                 <div><span>Отмечено за неделю
                         <span :class="workHoursThisWeek.class">{{workHoursThisWeek.hours}} </span>часов
-                    </span></div>
+                    </span>
+                </div>
                 <div><span>Отмечено за месяц
                         <span :class="workHoursThisMonth.class">{{workHoursThisMonth.hours}} </span>часов
-                    </span></div>
+                    </span>
+                </div>
             </div>
         </div>
+    </div>
+
+    <div class="copy-prev-week-btn  mb-3">
+        <button type="button" :disabled="!prevWeekSlotsNum" @click="copyPreviousWeekSlots" class="btn btn-secondary">Копировать предыдущую неделю</button>
     </div>
 
     <calendar :events="events" :resources="resources" :editable="true" :settings="settings"></calendar>

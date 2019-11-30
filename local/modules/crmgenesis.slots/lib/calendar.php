@@ -26,6 +26,7 @@ class Calendar{
                 'hours' => 0,
                 'class' => 'indicator-zero-color',
             ],
+            'prevWeekSlotsNum' => 0,
 //            'workMinutesThisMonth' => 0,
 //            'filters' => $filters,
         ];
@@ -34,32 +35,33 @@ class Calendar{
         $lastMonthDay = date('t.m.Y',strtotime($filters['firstWeekDay']));
 //        $lastMonthDay = date('01.m.Y',strtotime($filters['firstWeekDay'].' +1 month'));
 
-
-
+        $previousWeekFirstDay = date('d.m.Y',strtotime($filters['firstWeekDay'].' -1 week'));
+        $previousWeekLastDay = date('d.m.Y',strtotime($filters['lastWeekDay'].' -1 week'));
 
         $result['1stDayOfMonth'] = $firstMonthDay;
         $result['lastDayOfMonth'] = $lastMonthDay;
 
+        $result['previousWeekFirstDay'] = $previousWeekFirstDay;
+        $result['previousWeekLastDay'] = $previousWeekLastDay;
+
         $filter = [
-//            '>=DATE_FROM' => date('d.m.Y',strtotime($filters['firstWeekDay'])),
-//            '<=DATE_TO' => date('d.m.Y',strtotime($filters['lastWeekDay'])),
             '>=DATE_FROM' => date('d.m.Y',strtotime($firstMonthDay)),
-//            '<=DATE_TO' => date('d.m.Y',strtotime($lastMonthDay)),
             'USER_ID' => $filters['seletedUserId'],
         ];
 
-        if(date('m',strtotime($lastMonthDay)) == date('m',strtotime($filters['lastWeekDay']))) {
-            $filter['<=DATE_TO'] = date('d.m.Y',strtotime($lastMonthDay.' +1 day'));
-//            $result['test_bool'] = 'cur Month!'.date('m',strtotime($lastMonthDay))
-//                .' - '.date('m',strtotime($filters['lastWeekDay']));
-        }
-        else{
-            $filter['<=DATE_TO'] = date('d.m.Y',strtotime($filters['lastWeekDay'].'+1 day'));
-//            $result['test_bool'] = 'NEXT! month!'.date('m',strtotime($lastMonthDay))
-//                .' - '.date('m',strtotime($filters['lastWeekDay']));
-        }
+        //для получения массива предыдущей недели
+        //Если предыдущий ПН был в текущем месяце, фильтруем от него, иначе от ПН прошлой недели
+        (date('m',strtotime($previousWeekFirstDay)) == date('m',strtotime($firstMonthDay)))
+            ? $filter['>=DATE_FROM'] = date('d.m.Y',strtotime($firstMonthDay))
+            : $filter['>=DATE_FROM'] = date('d.m.Y',strtotime($previousWeekFirstDay));
 
-//        $result['filter'] = $filter;
+        //если послежний день текущей недели приходится не на этот месяц, то берем конечной датой факт. дату конца недели
+        (date('m',strtotime($lastMonthDay)) == date('m',strtotime($filters['lastWeekDay'])))
+            ? $filter['<DATE_TO'] = date('d.m.Y',strtotime($lastMonthDay.' +1 day'))
+            : $filter['<DATE_TO'] = date('d.m.Y',strtotime($filters['lastWeekDay'].'+1 day'));
+
+
+        $result['filter'] = $filter;
 
 //        $result['testWeekElems'] = [];
 
@@ -71,21 +73,21 @@ class Calendar{
 
         while($event = $recordArr->fetch()){
 
+            //текущая неделя
             $diffStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
                 date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
-                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%h');
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
             $diffEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'].'+1 day')),
-                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%h');
+                date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'])),
+                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
 
-
+            //за месяц
             $diffMonthStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
                 date('d.m.Y H:i:s',strtotime($firstMonthDay)),
-                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%h');
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
             $diffMonthEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($lastMonthDay.' +1 day')),
-                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%h');
-
+                date('d.m.Y H:i:s',strtotime($lastMonthDay)),
+                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
 
             $event['H'] = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
                 date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),
@@ -126,8 +128,17 @@ class Calendar{
                     'h' => $event['H'], //запрет редактирования записи
                     'm' => $event['M'], //запрет редактирования записи
                 ];
-
             }
+
+            //прошлая неделя
+            $diffLastWeekStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($previousWeekFirstDay)),
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
+            $diffLastWeekEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+                date('d.m.Y H:i:s',strtotime($previousWeekLastDay)),
+                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
+            if($diffLastWeekStartRes >= 0 && $diffLastWeekEndRes <= 0)
+                $result['prevWeekSlotsNum']++;
 
 //            $result['ALL'][$event['ID']] = $event;
 

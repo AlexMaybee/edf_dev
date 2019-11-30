@@ -68,7 +68,7 @@ Vue.component('calendar', {
                             );
                         }
                     }
-                }
+                },
             },
             themeSystem: 'bootstrap4',
             slotDuration: self.settings.slotDuration,
