@@ -21,19 +21,16 @@ class Calendar{
                 'hours' => 0,
                 'class' => 'indicator-zero-color',
             ],
-//            'workMinutesThisWeek' => 0,
             'workHoursThisMonth' => [
                 'hours' => 0,
                 'class' => 'indicator-zero-color',
             ],
             'prevWeekSlotsNum' => 0,
-//            'workMinutesThisMonth' => 0,
 //            'filters' => $filters,
         ];
 
         $firstMonthDay = date('01.m.Y',strtotime($filters['firstWeekDay']));
         $lastMonthDay = date('t.m.Y',strtotime($filters['firstWeekDay']));
-//        $lastMonthDay = date('01.m.Y',strtotime($filters['firstWeekDay'].' +1 month'));
 
         $previousWeekFirstDay = date('d.m.Y',strtotime($filters['firstWeekDay'].' -1 week'));
         $previousWeekLastDay = date('d.m.Y',strtotime($filters['lastWeekDay'].' -1 week'));
@@ -61,9 +58,7 @@ class Calendar{
             : $filter['<DATE_TO'] = date('d.m.Y',strtotime($filters['lastWeekDay'].'+1 day'));
 
 
-        $result['filter'] = $filter;
-
-//        $result['testWeekElems'] = [];
+//        $result['filter'] = $filter;
 
         $recordArr = SlotsTable::getList([
             'select' => ['*'],
@@ -74,20 +69,20 @@ class Calendar{
         while($event = $recordArr->fetch()){
 
             //текущая неделя
-            $diffStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
-                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-            $diffEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'])),
-                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
+//            $diffStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//                date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
+//            $diffEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//                date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'])),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
 
             //за месяц
-            $diffMonthStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($firstMonthDay)),
-                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-            $diffMonthEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($lastMonthDay)),
-                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
+//            $diffMonthStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//                date('d.m.Y H:i:s',strtotime($firstMonthDay)),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
+//            $diffMonthEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//                date('d.m.Y H:i:s',strtotime($lastMonthDay)),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
 
             $event['H'] = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
                 date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),
@@ -101,7 +96,9 @@ class Calendar{
 
 
             //month
-            if($diffMonthStartRes >= 0 && $diffMonthEndRes <= 0){
+//            if($diffMonthStartRes >= 0 && $diffMonthEndRes <= 0){
+            if(strtotime($event['DATE_FROM']) >= strtotime($firstMonthDay) &&
+                strtotime($event['DATE_TO']) <= strtotime($lastMonthDay.' 23:59:59')){
                 $result['workHoursThisMonth']['hours'] += $event['H'];
                 $result['workHoursThisMonth']['hours'] += $event['M']/60;
                 $result['workHoursThisMonth']['class'] = self::getIndicatorColor($result['workHoursThisMonth']['hours'],self::MonthNormaHours);
@@ -109,7 +106,13 @@ class Calendar{
 
 
             //week
-            if($diffStartRes >= 0 && $diffEndRes <= 0){
+//            if($diffStartRes >= 0 && $diffEndRes <= 0){
+//            date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
+//            date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'])),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_TO']))
+            if(strtotime($event['DATE_FROM']) >= strtotime($filters['firstWeekDay']) &&
+                strtotime($event['DATE_TO']) <= strtotime($filters['lastWeekDay'].' 23:59:59')){
                 $result['workHoursThisWeek']['hours'] += $event['H'];
                 $result['workHoursThisWeek']['hours'] += $event['M']/60;
 
@@ -131,14 +134,20 @@ class Calendar{
             }
 
             //прошлая неделя
-            $diffLastWeekStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($previousWeekFirstDay)),
-                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-            $diffLastWeekEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-                date('d.m.Y H:i:s',strtotime($previousWeekLastDay)),
-                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-            if($diffLastWeekStartRes >= 0 && $diffLastWeekEndRes <= 0)
+//            $diffLastWeekStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//                date('d.m.Y H:i:s',strtotime($previousWeekFirstDay)),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
+//            $diffLastWeekEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//                date('d.m.Y H:i:s',strtotime($previousWeekLastDay)),
+//                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
+//            if($diffLastWeekStartRes >= 0 && $diffLastWeekEndRes <= 0) {
+            if(strtotime($event['DATE_FROM']) >= strtotime($previousWeekFirstDay) &&
+                strtotime($event['DATE_TO']) <= strtotime($previousWeekLastDay.' 23:59:59')){
+                $event['DATE_FROM'] =  date('d.m.Y H:i:s',strtotime($event['DATE_FROM']));
+                $event['DATE_TO'] =  date('d.m.Y H:i:s',strtotime($event['DATE_TO']));
+                $result['test_last_week'][] = $event;
                 $result['prevWeekSlotsNum']++;
+            }
 
 //            $result['ALL'][$event['ID']] = $event;
 
@@ -186,18 +195,7 @@ class Calendar{
             }
         }
 
-        $result['H_interval'] = $intervalHours;
-
-
-//        $addRes = Bitrixfunction::addSlot([
-//            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['workDayStart'])),"d.m.Y H:i:s"),
-//            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['workDayFinish'])),"d.m.Y H:i:s"),
-//            'USER_ID' => $filters['seletedUserId'],
-//        ]);
-//
-//        ($addRes['result'])
-//            ? $result['result'] = $addRes['result']
-//            : $result['errors'] = $addRes['errors'];
+//        $result['H_interval'] = $intervalHours;
 
         Bitrixfunction::sentAnswer($result);
     }
@@ -208,6 +206,48 @@ class Calendar{
     */
     public function deleteSlotFromCalendar($filters){
         $result = Bitrixfunction::deleteSlot($filters['seletedSlotId']);
+        Bitrixfunction::sentAnswer($result);
+    }
+
+    /*
+     * @method: копирует слоты с предыдущей недели на текущую
+     * @return arr*/
+    public function copyPreviousWeekSlots($filters){
+        $result = [
+            'errors' => [],
+            'result' => [],
+        ];
+
+
+        $recordArr = SlotsTable::getList([
+            'select' => ['USER_ID','DATE_FROM','DATE_TO'],
+            'filter' => [
+                '>=DATE_FROM' => date('d.m.Y',strtotime($filters['firstWeekDay'].' -1 week')),
+                '<=DATE_TO' => date('d.m.Y',strtotime($filters['lastWeekDay'].' -6 days')),
+                'USER_ID' => $filters['seletedUserId'],
+            ],
+            'order' => ['DATE_FROM' => 'ASC'],
+        ])->fetchAll();
+
+        if($recordArr){
+            foreach ($recordArr as $record){
+                $addRes = Bitrixfunction::addSlot([
+                    'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
+                        date('d.m.Y H:i:s',strtotime($record['DATE_FROM'].' +1 week')),
+                        "d.m.Y H:i:s"),
+                    'DATE_TO' => new \Bitrix\Main\Type\DateTime(
+                        date('d.m.Y H:i:s',strtotime($record['DATE_TO'].' +1 week')),
+                        "d.m.Y H:i:s"),
+                    'USER_ID' => $record['USER_ID'],
+                ]);
+                ($addRes['result'])
+                    ? $result['result'][] = $addRes['result']
+                    : $result['errors'][] = $addRes['errors'];
+            }
+
+        }
+//        $result['test_arr'] = $recordArr;
+
         Bitrixfunction::sentAnswer($result);
     }
 

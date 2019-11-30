@@ -29,3 +29,7 @@ if($data['action'] == 'addWorkPeriodToCalendar')
 // #5 Удаление рабочего дня из Popup
 if($data['action'] == 'deleteSlot')
     Crmgenesis\Slots\Calendar::deleteSlotFromCalendar($data['filters']);
+
+// #6 Копирование слотов предыдущей недели на текущую
+if($data['action'] == 'copyPreviousWeekSlots')
+    Crmgenesis\Slots\Calendar::copyPreviousWeekSlots($data['filters']);

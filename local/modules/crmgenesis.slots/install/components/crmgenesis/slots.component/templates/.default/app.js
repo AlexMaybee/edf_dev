@@ -179,7 +179,7 @@ let app = new Vue({
                         },
                     }).then(response => {
 
-                        console.log('addWorkPeriodToCalendar: ',response.data)
+                        // console.log('addWorkPeriodToCalendar: ',response.data)
 
                         //если сохранилось, то закрываем попап
                         if(response.data.result.length > 0){
@@ -210,7 +210,7 @@ let app = new Vue({
                         },
                     }).then(response => {
 
-                    console.log('deleteSlot: ',response.data)
+                    // console.log('deleteSlot: ',response.data)
 
                     //если сохранилось, то закрываем попап
                     if(response.data.result){
@@ -233,9 +233,25 @@ let app = new Vue({
         //копирование слотов с предыдущей недели
         copyPreviousWeekSlots: function () {
             if(this.seletedUserId) {
+                axios.post(this.request_url,
+                    {action:'copyPreviousWeekSlots',
+                        filters: {
+                            'firstWeekDay': this.firstWeekDay,
+                            'lastWeekDay': moment(this.firstWeekDay).day(+7).format('YYYY-MM-DD'),
+                            'seletedUserId': this.seletedUserId,
+                        },
+                    }).then(response => {
 
+                    // console.log('copyPreviousWeekSlots: ',response.data)
+
+                    if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+
+                    //перезапуск функции получения евентов на выбранную неделю
+                    this.getUserSlots();
+
+                }).catch(err => console.log(err));
             }
         }
 
     }
-})
+});
