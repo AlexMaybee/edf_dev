@@ -1,1 +1,0 @@
-// console.log('This is th test message from Slot Component!');

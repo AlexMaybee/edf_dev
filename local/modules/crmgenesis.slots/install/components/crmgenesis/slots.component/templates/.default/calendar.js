@@ -140,7 +140,7 @@ Vue.component('calendar', {
                 app.FilterEventsDate(view.start);
             },
 
-            schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
+            // schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
         }
 
         self.cal.fullCalendar(args);

@@ -68,41 +68,20 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
         <button type="button" :disabled="!prevWeekSlotsNum" @click="copyPreviousWeekSlots" class="btn btn-secondary">Копировать предыдущую неделю</button>
     </div>
 
+    <div class="test-btn  mb-3">
+        <button type="button" @click="openGspModal" class="btn btn-danger">Popup добавления инфы в слот</button>
+    </div>
+
     <calendar :events="events" :resources="resources" :editable="true" :settings="settings"></calendar>
 
 
     <!-- Modal add Slots id deal -->
-    <div class="modal fade" id="workDayInCalendar" tabindex="-1" role="dialog" aria-labelledby="workDayInCalendarLabel" aria-hidden="true" ref="vuemodalchangeCategoryDeal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="workDayInCalendarLabel">Подтвердите евент</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!--@submit.prevent="addWorkPeriodToCalendar"-->
-                    <form id="sendFormCategoryDeal" onsubmit="return false" method="POST">
-                        <div class="form-group required">
-                            <label class="form-control-label" for="workDayStart">Начало:</label>
-                            <input type="datetime-local" id="workDayStart" name="workDayStart" class="form-control"
-                                   disabled="disabled" v-model="workDayStart">
-                        </div>
-                        <div class="form-group required">
-                            <label class="form-control-label" for="workDayFinish">Окончание:</label>
-                            <input type="datetime-local" id="workDayFinish" name="workDayFinish" class="form-control"
-                                   disabled="disabled" v-model="workDayFinish">
-                        </div>
-                        <div class="modal-footer">
-                            <button v-if="!seletedSlotId" @click="addWorkPeriodToCalendar" class="btn btn-primary">Сохранить</button>
-                            <button v-if="seletedSlotId" @click="deleteSlot" class="btn btn-danger">Удалить</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
+    <?php include_once 'includes/slotCreateModal.php'?>
+    <!-- Modal add Slots id deal -->
+
+    <!-- Modal TEST edit Slots id deal -->
+    <?php include_once 'includes/gspModal.php'?>
+    <!-- Modal TEST edit Slots id deal -->
 
 </div>
 

@@ -31,3 +31,21 @@
     font-size: larger;
     color: #e46400;
 }
+
+/*таблица с чекбоксами*/
+.my-shedule-table tbody td, .my-shedule-table tbody th{
+    padding: 0!important;
+}
+.my-shedule-table tbody td {
+    border: none;
+}
+.my-shedule-table thead{
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+@media (min-width: 1200px){
+    .modal-xl {
+        max-width: 1140px!important;
+    }
+}

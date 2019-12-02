@@ -76,7 +76,7 @@ let app = new Vue({
                     this.lang.monthHourText = response.data.lang.monthText;
                     this.lang.measureText = response.data.lang.measureText;
 
-                    console.log('lang',response.data.lang);
+                    // console.log('lang',response.data.lang);
 
                     if(response.data.isAdmin != false){
                         this.isAdmin = response.data.isAdmin;
@@ -255,7 +255,12 @@ let app = new Vue({
 
                 }).catch(err => console.log(err));
             }
-        }
+        },
+
+        //ТЕСТ попап добавления инфы в сохраненный слот
+        openGspModal: function () {
+            $('#gspModal').modal('show');
+        },
 
     }
 })
