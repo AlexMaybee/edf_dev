@@ -41,18 +41,27 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
         </select>
     </div>
     <div class="mb-3">
+
         <div>
             <div class="week-work-hours-outer">
-                <div><span>Отмечено за неделю
-                        <span :class="workHoursThisWeek.class">{{workHoursThisWeek.hours}} </span>часов
-                    </span>
-                </div>
-                <div><span>Отмечено за месяц
-                        <span :class="workHoursThisMonth.class">{{workHoursThisMonth.hours}} </span>часов
-                    </span>
-                </div>
+
+                <animate-time-counters
+                    :hours="workHoursThisWeek.hours"
+                    :my-class="workHoursThisWeek.class"
+                    :text="lang.weekHourText"
+                    :measure="lang.measureText">
+                </animate-time-counters>
+
+                <animate-time-counters
+                    :hours="workHoursThisMonth.hours"
+                    :my-class="workHoursThisMonth.class"
+                    :text="lang.monthHourText"
+                    :measure="lang.measureText">
+                </animate-time-counters>
+
             </div>
         </div>
+
     </div>
 
     <div class="copy-prev-week-btn  mb-3">
@@ -98,5 +107,6 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 </div>
 
     <script src="/local/components/crmgenesis/slots.component/templates/.default/calendar.js"></script>
+    <script src="/local/components/crmgenesis/slots.component/templates/.default/vcomponents.js"></script>
     <script src="/local/components/crmgenesis/slots.component/templates/.default/app.js"></script>
 

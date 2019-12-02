@@ -1,13 +1,7 @@
 let app = new Vue({
-    // components: {
-    //     Multiselect: window.VueMultiselect.default,
-    //     Loading: VueLoading
-    // },
     el: '#slot_calendar',
-
     data () {
         return {
-            // day_of_week: moment(new Date).format('dddd'),
             defaultDate: moment(new Date).format('YYYY-MM-DD'),
             defaultDateCustom: moment(new Date),
             // editable: true,
@@ -17,6 +11,11 @@ let app = new Vue({
             },
             firstWeekDay: '',
             isAdmin: false,
+            lang: {
+                weekHourText: '',
+                monthHourText: '',
+                measureText: '',
+            },
             prevWeekSlotsNum: 0,
             resources: [],
             request_url: '/local/components/crmgenesis/slots.component/ajax.php',
@@ -45,7 +44,6 @@ let app = new Vue({
         // -- переключении календаря получаем из него (Event) - FilterEventsDate
         this.firstWeekDay = this.getCurWeekendMondayDate(this.defaultDate);
 
-
         //данные пользователя + загрузка евентов календаря
         this.getUserRoleAndId();
     },
@@ -57,9 +55,6 @@ let app = new Vue({
             console.log('first week day changed to ',this.firstWeekDay);
             this.getUserSlots();
         },
-        // seletedUserId: function () {
-        //     this.getUserSlots();
-        // },
 
     },
 
@@ -75,6 +70,13 @@ let app = new Vue({
 
                 if(response.data.seletedUserId != false) {
                     this.seletedUserId = response.data.seletedUserId;
+
+                    //langs
+                    this.lang.weekHourText = response.data.lang.weekText;
+                    this.lang.monthHourText = response.data.lang.monthText;
+                    this.lang.measureText = response.data.lang.measureText;
+
+                    console.log('lang',response.data.lang);
 
                     if(response.data.isAdmin != false){
                         this.isAdmin = response.data.isAdmin;
@@ -106,6 +108,8 @@ let app = new Vue({
                     (response.data.userList.length > 0)
                         ? this.filterValueLists.users = response.data.userList
                         : this.filterValueLists.users = [];
+
+
                 }
 
             }).catch(err => console.log(err));
@@ -254,4 +258,4 @@ let app = new Vue({
         }
 
     }
-});
+})

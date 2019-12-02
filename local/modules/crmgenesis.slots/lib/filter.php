@@ -7,13 +7,18 @@ use \Crmgenesis\Slots\Bitrixfunction,
 
 class Filter{
 
-    /*@method: получение ID и роли текущего пользователя
+    /*@method: получение ID и роли текущего пользователя + берем lang-строки для счетчиков
      * @return: array*/
     public function getUserRoleAndId(){
         $result = [
             'isAdmin' => false,
             'seletedUserId' => false,
             'error' => false,
+            'lang' => [
+                'weekText' => Loc::getMessage('CRM_GENESIS_SLOTS_COUNTER_COMPONENT_WEEK_HOURS_TEXT'),
+                'monthText' => Loc::getMessage('CRM_GENESIS_SLOTS_COUNTER_COMPONENT_MONTH_HOURS_TEXT'),
+                'measureText' => Loc::getMessage('CRM_GENESIS_SLOTS_COUNTER_COMPONENT_MEASURE_TEXT'),
+            ],
         ];
 
         $result['seletedUserId'] = Bitrixfunction::returnCurUserId();
