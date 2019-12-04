@@ -4,10 +4,17 @@ let app = new Vue({
         return {
             defaultDate: moment(new Date).format('YYYY-MM-DD'),
             defaultDateCustom: moment(new Date),
-            // editable: true,
             events: [],
             filterValueLists: { //объект значений для фильтров
                 users: [],
+                slotStatusList: [],
+                slotServiceList: [],
+                slotTypeList: [],
+                slotClubList: [],
+                slotZonaList: [],
+                slotLocationList: [],
+                slotCheckBoxList: [],
+                slotSortedUserList: [], //filterValueLists.slotSortedUserList //отсорированные по свведенным буквам пользователи
             },
             firstWeekDay: '',
             isAdmin: false,
@@ -21,7 +28,15 @@ let app = new Vue({
             request_url: '/local/components/crmgenesis/slots.component/ajax.php',
             settings: {minTime: '07:00:00', maxTime: '22:30:00', slotDuration: '00:60:00', slotMinute: '60'},
             seletedUserId: '',
-            seletedSlotId: '', //id слота, если
+            seletedSlotId: '', //id слота, для удаления/обновления
+            slotClub: '', //клуб в gsp-Modal
+            slotEmployee: '', //сотрудник в gsp-Modal
+            slotLocation: '', //локация в gsp-Modal
+            slotPeriodFrom: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
+            slotPeriodTo: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
+            slotSelectedCheckboxes: [],//массив чекбоксов в gsp-Modal
+            slotType: '', //тип (индивид., групп., сплит) в gsp-Modal
+            slotZone: '', //зона в gsp-Modal
             workDayStart: '', //дата начала рабочего дня при выборе
             workDayFinish: '', //дата окончания раюочего дня при выборе
             workHoursThisWeek: {
@@ -32,7 +47,29 @@ let app = new Vue({
                 hours: 0,
                 class: '',
             },
+
+
+
+
+            testUsersList: [],
+
+
+
         }
+    },
+
+    // computed: {
+    //     userValList: function () {
+    //         this.gspUserFilter();
+    //     },
+    // },
+
+    filters: {
+        toUpperCase: function (string) {
+            return string.toUpperCase();
+        },
+
+
     },
 
     mounted() {
@@ -46,6 +83,9 @@ let app = new Vue({
 
         //данные пользователя + загрузка евентов календаря
         this.getUserRoleAndId();
+
+        // console.log('moment:',moment(new Date).hour(7).minute(0).format('hh:mm'));
+        // console.log('moment:'this.makeGspModalDateArray(););
     },
 
     watch: {
@@ -54,6 +94,12 @@ let app = new Vue({
         firstWeekDay: function () {
             console.log('first week day changed to ',this.firstWeekDay);
             this.getUserSlots();
+        },
+
+        slotEmployee: function () {
+            this.filterValueLists.slotSortedUserList = this.gspUserFilter();
+
+
         },
 
     },
@@ -89,6 +135,9 @@ let app = new Vue({
                     //здесь запрос данных календаря при загрузке для конкретного пользователя
                     this.getUserSlots();
                     // console.log('Monday Date is:', this.firstWeekDay);
+
+                    //данные для селектов попап
+                    this.getGspModalSelectFields();
 
                 }
             }).catch(err => console.log(err));
@@ -257,9 +306,75 @@ let app = new Vue({
             }
         },
 
+        //получение полей для селектов popup gsp
+        getGspModalSelectFields: function(){
+            if(this.seletedUserId) {
+                console.log('get gsp-popup fields');
+
+                axios.post(this.request_url,
+                    {action:'getGspModalSelectFields'}).then(response => {
+
+                        console.log('getGspModalSelectFields: ',response.data)
+                        if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+
+                        //селекты в gsp-popup
+                        this.filterValueLists.slotStatusList = response.data.statusList;
+                        this.filterValueLists.slotClubList = response.data.clubList;
+                        this.filterValueLists.slotZonaList = response.data.zonaList;
+                        this.filterValueLists.slotServiceList = response.data.serviceList;
+                        this.filterValueLists.slotLocationList = response.data.locationList;
+                        this.filterValueLists.slotTypeList = response.data.typeList;
+
+                        //создаем нужный массив
+                        //ЗАМЕНИТЬ СТАНДАРТНЫМ PHP
+                        this.filterValueLists.slotCheckBoxList = this.makeGspModalDateArray(response.data.dateTable);
+
+                        console.log('slotCheckBoxList: ',this.filterValueLists.slotCheckBoxList)
+
+
+                }).catch(err => console.log(err));
+            }
+        },
+
         //ТЕСТ попап добавления инфы в сохраненный слот
         openGspModal: function () {
             $('#gspModal').modal('show');
+        },
+
+        makeGspModalDateArray: function (arr) {
+            let startH = 7,
+                startCh,
+                mainArr = {
+                    ths: [],
+                    tds: [],
+                };
+
+            mainArr.ths.push(arr);
+            while(startH < 23){
+                let array = [{'TIME': moment(new Date).hour(startH).minute(0).format('HH:mm'),'ID': startH}];
+                startCh = 1;
+                while(startCh <= 7) {
+                    array.push({'TIME':startH,'DAY':startCh});
+                    startCh++;
+                }
+                mainArr.tds.push(array);
+                startH++;
+            }
+            return mainArr;
+        },
+
+
+        //фильтр для поля сотрудник
+        gspUserFilter: function () {
+            let users = this.filterValueLists.users;
+
+            console.log('filter',this.filterValueLists.users);
+            let comp = this.slotEmployee.toLowerCase();
+            return users.filter(function (elem) {
+
+                if(comp==='') return true;
+                else return elem.NAME.toLowerCase().indexOf(comp) > -1;
+            });
         },
 
     }

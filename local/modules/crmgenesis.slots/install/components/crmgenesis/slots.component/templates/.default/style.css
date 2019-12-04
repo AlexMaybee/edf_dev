@@ -36,12 +36,27 @@
 .my-shedule-table tbody td, .my-shedule-table tbody th{
     padding: 0!important;
 }
-.my-shedule-table tbody td {
+.my-shedule-table tbody td, .my-shedule-table tbody th {
     border: none;
 }
+
+/*клик по чекбоксу с днем-временем на всю клетку*/
+.my-shedule-table tbody td label{
+    width: 100%;
+    height: 100%;
+}
+
 .my-shedule-table thead{
     border-top: 1px solid #dee2e6;
     border-bottom: 1px solid #dee2e6;
+}
+
+.slot-employee-absolute{
+    background: #0aa2ff;
+    z-index: 9;
+}
+.slot-employee-absolute li{
+    list-style-type: none;
 }
 
 @media (min-width: 1200px){

@@ -45,3 +45,57 @@ Vue.component('animate-time-counters',{
             </span>
         </div>`,
 });
+
+/*@component: 2. Click on Col component
+*/
+Vue.component('th-function-component', {
+    props: {
+        dayId: 0,
+        name: '',
+    },
+    methods: {
+        selectDayAllCols: function () {
+            if(this.dayId > 0){
+                let checkboxes = $('input[data-day="' + this.dayId + '"]'),
+                    checkboxesChecked = $('input[data-day="' + this.dayId + '"]:checked');
+                if(checkboxes.length > 0){
+                    (checkboxes.length == checkboxesChecked.length)
+                        ? $(checkboxes).prop('checked', false)
+                        : $(checkboxes).prop('checked', true);
+                    $.each(checkboxes, function (index,elem) {
+                        elem.dispatchEvent(new Event('change'));
+                    });
+                }
+            }
+        }
+    },
+    template:
+        `<th @click="selectDayAllCols()">{{name}}</th>`
+});
+
+/*@component: 3. Click on row component
+*/
+Vue.component('tr-td-function-component', {
+    props: {
+        timeId: 0,
+        time: '',
+    },
+    methods: {
+        selectTimeAllCols: function () {
+            if(this.timeId > 0){
+                let checkboxes = $('input[data-time="' + this.timeId + '"]'),
+                    checkboxesChecked = $('input[data-time="' + this.timeId + '"]:checked');
+                if(checkboxes.length > 0){
+                    (checkboxes.length == checkboxesChecked.length)
+                        ? $(checkboxes).prop('checked', false)
+                        : $(checkboxes).prop('checked', true);
+                    $.each(checkboxes, function (index,elem) {
+                        elem.dispatchEvent(new Event('change'));
+                    });
+                }
+            }
+        },
+    },
+    template:
+        `<td @click="selectTimeAllCols()">{{time}}</td>`
+});

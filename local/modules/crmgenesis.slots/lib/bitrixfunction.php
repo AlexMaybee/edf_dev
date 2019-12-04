@@ -5,6 +5,8 @@ use Crmgenesis\Slots\SlotsTable;
 
 class Bitrixfunction{
 
+    const MODULE_ID = 'crmgenesis.slots';
+
     public function checkUserIfAdmin(){
         return $GLOBALS['USER']->IsAdmin();
     }
@@ -63,6 +65,18 @@ class Bitrixfunction{
         $diffDate = new \DateTime($diffD);
         $difference = $curDate->diff($diffDate);
         return $difference->format($form);
+    }
+
+    public function getCoptionValue($cOption){
+        return  \COption::GetOptionInt(self::MODULE_ID, $cOption);
+    }
+
+    public function getListElements($filter,$select,$order=[]){
+        return $record = \Bitrix\Iblock\ElementTable::getList([
+            'select' => $select,
+            'filter' => $filter,
+            'order' => $order,
+        ])->fetchAll();
     }
 
 }

@@ -18,33 +18,100 @@
                                     <label for="training-type">Тип</label>
                                 </div>
                                 <div class="col-8">
-                                    <select class="form-control" id="training-type">
+                                    <select v-model="slotType" v-if="filterValueLists.slotTypeList.length > 0" class="form-control" id="training-type">
                                         <option selected value="">Не выбрано</option>
-                                        <option value="1">Групповая</option>
-                                        <option value="2">Индивидуальная</option>
-                                        <option value="3">Сплит</option>
+                                        <option v-for="type in filterValueLists.slotTypeList" :value="type.ID">{{type.NAME}}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div class="form-group col row">
                                 <div class="col-4 text-right">
-                                    <label for="group-title">Название группы</label>
+                                    <label for="group-title">Клуб</label>
                                 </div>
                                 <div class="col-8">
-                                    <input type="text" class="form-control" id="group-title">
+                                    <select v-model="slotClub" v-if="filterValueLists.slotClubList.length > 0" class="form-control" id="training-type">
+                                        <option selected value="">Не выбрано</option>
+                                        <option v-for="club in filterValueLists.slotClubList" :value="club.ID">{{club.NAME}}</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="group-start-from">Период с</label>
+                                </div>
+                                <div class="col-8">
+                                    <input v-model="slotPeriodFrom" type="date" class="form-control" id="group-start-from">
+                                </div>
+                            </div>
+
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="zone">Зона</label>
+                                </div>
+                                <div class="col-8">
+                                    <select v-model="slotZone" v-if="filterValueLists.slotZonaList.length > 0" class="form-control" id="location">
+                                        <option selected value="">Не выбрано</option>
+                                        <option v-for="zona in filterValueLists.slotZonaList" :value="zona.ID">{{zona.NAME}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="row">
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="group-start-to">по</label>
+                                </div>
+                                <div class="col-8">
+                                    <input v-model="slotPeriodTo" type="date" class="form-control" id="group-start-to">
+                                </div>
+                            </div>
+
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="location">Локация</label>
+                                </div>
+                                <div class="col-8">
+                                    <select v-if="filterValueLists.slotLocationList.length > 0" class="form-control" id="location">
+                                        <option selected value="">Не выбрано</option>
+                                        <option v-for="location in filterValueLists.slotLocationList" :value="location.ID">{{location.NAME}}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="age-start-from">Возраст с</label>
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" class="form-control" id="age-start-from">
+                                </div>
+
+                            </div>
+
                             <div class="form-group col row">
                                 <div class="col-4 text-right">
                                     <label for="group-length">Численность группы</label>
                                 </div>
                                 <div class="col-8">
                                     <input type="text" class="form-control" id="group-length">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="age-start-to">до</label>
+                                </div>
+                                <div class="col-8">
+                                    <input type="text" class="form-control" id="age-start-to">
                                 </div>
                             </div>
 
@@ -61,216 +128,74 @@
                         <div class="row">
                             <div class="form-group col row">
                                 <div class="col-4 text-right">
-                                    <label for="zone">Зона</label>
-                                </div>
-                                <div class="col-8">
-                                    <select class="form-control" id="zone">
-                                        <option selected value="">Не выбрано</option>
-                                        <option value="4">Финтесс</option>
-                                        <option value="5">Бассейн</option>
-                                        <option value="6">Спа</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="location">Локация</label>
-                                </div>
-                                <div class="col-8">
-                                    <select class="form-control" id="location">
-                                        <option selected value="">Не выбрано</option>
-                                        <option value="7">Зал № 1</option>
-                                        <option value="8">Зал № 2</option>
-                                        <option value="9">Зал № 3</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="group-start-from">Период с</label>
-                                </div>
-                                <div class="col-8">
-                                    <input type="date" class="form-control" id="group-start-from">
-                                </div>
-                            </div>
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="group-start-to">по</label>
-                                </div>
-                                <div class="col-8">
-                                    <input type="date" class="form-control" id="group-start-to">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="age-start-from">Возраст с</label>
-                                </div>
-                                <div class="col-8">
-                                    <input type="text" class="form-control" id="age-start-from">
-                                </div>
-
-                            </div>
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="age-start-to">до</label>
-                                </div>
-                                <div class="col-8">
-                                    <input type="text" class="form-control" id="age-start-to">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
                                     <label for="employee">Сотрудник</label>
                                 </div>
+                                <div class="col-8 position-relative">
+                                    <input type="text" class="form-control" id="employee" v-model="slotEmployee" autofocus>
+<!--                                    <ul>-->
+<!--                                        <li v-for="user in array | filterBy slotEmployee in 'NAME'"></li>-->
+<!--                                    </ul>-->
+
+                                    <!--<div>{{slotEmployee | toUpperCase}}</div>-->
+                                    <!--v-if="filterValueLists.slotSortedUserList.lenght > 0"-->
+                                    <div class="position-absolute col-11 slot-employee-absolute">
+                                        {{filterValueLists.slotSortedUserList.length}}
+                                        <ul>
+                                            <li v-for="user in filterValueLists.slotSortedUserList">{{user.ID}} - {{user.NAME}}</li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group col row">
+                                <div class="col-4 text-right">
+                                    <label for="group-title">Название группы</label>
+                                </div>
                                 <div class="col-8">
-                                    <input type="text" class="form-control" id="employee">
+                                    <input type="text" class="form-control" id="group-title">
                                 </div>
                             </div>
-                            <div class="form-group col row"></div>
                         </div>
-
+                        <!--filterValueLists.slotCheckBoxList-->
                         <div class="form-group row">
                             <div class="col-md-12">
-                               <!-- <label for="">Дни недели</label>-->
+
+                                <div>{{slotSelectedCheckboxes}}</div>
                                 <table class="table my-shedule-table text-center overflow-hidden" style="padding: 0">
                                     <thead>
-                                        <tr>
-                                            <td>Время</td>
-                                            <td>ПН</td>
-                                            <td>ВТ</td>
-                                            <td>СР</td>
-                                            <td>ЧТ</td>
-                                            <td>ПТ</td>
-                                            <td>СБ</td>
-                                            <td>ВС</td>
+                                        <tr v-for="rowTh in filterValueLists.slotCheckBoxList.ths">
+                                            <template v-for="(thCol,colThInd) in rowTh">
+                                                <th v-if="colThInd == 0">{{thCol.NAME}}</th>
+                                                <template v-else>
+                                                    <th-function-component
+                                                            :day-id="thCol.ID"
+                                                            :name="thCol.NAME">
+                                                    </th-function-component>
+                                                </template>
+
+                                            </template>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td>07.00</td>
-                                            <td>
-                                                <input type="checkbox" value="1" id="chbx-mon">
-                                            </td>
-                                            <td>
-                                                <input type="checkbox" value="2" id="chbx-tue">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="3" id="chbx-wed">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-thu">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-fri">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-sat">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-sun">
-                                            </td>
-                                        </tr>
+                                        <tr v-for="rowTD in filterValueLists.slotCheckBoxList.tds">
+                                            <template v-for="(tdCol,colTbInd) in rowTD">
 
-                                        <tr>
-                                            <td>08.00</td>
-                                            <td>
-                                                <input type="checkbox" value="1" id="chbx-mon">
-                                            </td>
-                                            <td>
-                                                <input type="checkbox" value="2" id="chbx-tue">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="3" id="chbx-wed">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-thu">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-fri">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-sat">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-sun">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>09.00</td>
-                                            <td>
-                                                <input type="checkbox" value="1" id="chbx-mon">
-                                            </td>
-                                            <td>
-                                                <input type="checkbox" value="2" id="chbx-tue">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="3" id="chbx-wed">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-thu">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-fri">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-sat">
-                                            </td>
-                                            <td>
-                                                <input class="" type="checkbox" value="1" id="chbx-sun">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>10.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>11.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>12.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>13.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>14.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>15.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>16.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>17.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>18.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>19.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>20.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>21.00</td>
-                                        </tr>
-                                        <tr>
-                                            <td>22.00</td>
+                                                <template v-if="colTbInd == 0">
+                                                    <tr-td-function-component
+                                                            :time-id="tdCol.ID"
+                                                            :time="tdCol.TIME">
+                                                    </tr-td-function-component>
+                                                </template>
+                                                <td v-else >
+                                                    <label :for="'chbox-' + tdCol.TIME + '_' + tdCol.DAY">
+                                                    <input :data-time="tdCol.TIME" :data-day="tdCol.DAY"
+                                                           :id="'chbox-' + tdCol.TIME + '_' + tdCol.DAY"
+                                                           v-model="slotSelectedCheckboxes" type="checkbox" :value="tdCol.TIME + '_' + tdCol.DAY">
+                                                    </label>
+                                                </td>
+                                            </template>
                                         </tr>
                                     </tbody>
-
-
                                 </table>
                             </div>
                         </div>

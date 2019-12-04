@@ -41,33 +41,42 @@ $aTabs = [
 
             Loc::getMessage('CRM_GENESIS_SLOTS_MAIN_TAB_INNER_TITLE'),
             [
+                'SLOT_TYPE_LIST',
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_TYPE_LIST_FIELD_LABEL' ),
+                '',
+                ['selectbox', $resIblock]
+            ],
+            [
                 'SLOT_STATUS_LIST',// создаст COption('SLOT_STATUS_LIST'), потом можно его брать
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_LIST_FIELD_LABEL' ),
                 '',
                 ['selectbox', $resIblock]
-
             ],
             [
                 'SLOT_SERVISE_LIST', // создаст COption('SLOT_SERVISE_LIST'), потом можно его брать
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_SERVISE_LIST_FIELD_LABEL' ),
                 '',
                 ['selectbox', $resIblock]
-
+            ],
+            [
+                'SLOT_CLUB_LIST',
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_CLUBS_LIST_FIELD_LABEL' ),
+                '',
+                ['selectbox', $resIblock]
+            ],
+            [
+                'SLOT_ZONA_LIST',
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_ZONAS_LIST_FIELD_LABEL' ),
+                '',
+                ['selectbox', $resIblock]
             ],
             [
                 'SLOT_LOCATION_LIST',
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_LOCATIONS_LIST_FIELD_LABEL' ),
                 '',
                 ['selectbox', $resIblock]
-
             ],
-            [
-                'SLOT_TYPE_LIST',
-                Loc::getMessage( 'CRM_GENESIS_SLOTS_TYPE_LIST_FIELD_LABEL' ),
-                '',
-                ['selectbox', $resIblock]
 
-            ],
         ]
     ],
 ];

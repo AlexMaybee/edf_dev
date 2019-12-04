@@ -44,6 +44,114 @@ class Filter{
         Bitrixfunction::sentAnswer($result);
     }
 
+    /*@method: получение значений селектов для полей GSP-modal
+     @ return: array*/
+    public function getGspModalSelectFields(){
+        $result = [
+            'typeList' => [],
+            'clubList' => [],
+            'zonaList' => [],
+            'locationList' => [],
+            'statusList' => [],
+            'serviceList' => [],
+            'dateTable' => [],
+            'errors' => [],
+        ];
+
+        //получения массива дней и часов для чекбоксов
+        $result['dateTable'] = [['NAME' => Loc::getMessage('CRM_GENESIS_SLOTS_THS_START_TEXT'), 'ID' => 0]];
+
+        //вывод всех дней недели в фильтр битрикс
+        $i = 0;
+        $strtDay = strtotime('last monday');
+        while($i < 7){
+            array_push($result['dateTable'],
+                ['NAME' => FormatDate('D',strtotime(date('d.m.Y',$strtDay).'+'.$i.' day')),'ID' => $i+1]);
+            $i++;
+        }
+//        $strtTime = 7;
+//        while($strtTime < 23){
+//            array_push($result['dateTable'],$strtTime);
+//            $strtTime++;
+//        }
+
+
+        //спискм значений для select gsp-popup
+        $typeListId = Bitrixfunction::getCoptionValue('SLOT_TYPE_LIST');
+        if(!$typeListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_TYPE_LIST_ID_ERROR');
+        else {
+            $typeList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $typeListId], ['ID', 'NAME'], ['DATE_CREATE' => 'DESC']
+            );
+            (!$typeList)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_TYPE_LIST_RESULT_ERROR')
+                : $result['typeList'] = $typeList;
+        }
+
+        $clubListId = Bitrixfunction::getCoptionValue('SLOT_CLUB_LIST');
+        if(!$clubListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_CLUB_LIST_ID_ERROR');
+        else {
+            $clubList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $clubListId], ['ID', 'NAME'], ['DATE_CREATE' => 'DESC']
+            );
+            (!$clubList)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_CLUB_LIST_RESULT_ERROR')
+                : $result['clubList'] = $clubList;
+        }
+
+        $zonaListId = Bitrixfunction::getCoptionValue('SLOT_ZONA_LIST');
+        if(!$zonaListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_ID_ERROR');
+        else{
+            $zonaList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $zonaListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+            );
+            (!$zonaListId)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_RESULT_ERROR')
+                : $result['zonaList'] = $zonaList;
+        }
+
+        $locationListId = Bitrixfunction::getCoptionValue('SLOT_LOCATION_LIST');
+        if(!$locationListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_LOCATION_LIST_ID_ERROR');
+        else{
+            $locationList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $locationListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+            );
+            (!$locationList)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_LOCATION_LIST_RESULT_ERROR')
+                : $result['locationList'] = $locationList;
+        }
+
+        $statusListId = Bitrixfunction::getCoptionValue('SLOT_STATUS_LIST');
+        if(!$statusListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_STATUS_LIST_ID_ERROR');
+        else{
+            $statuseList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $statusListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+            );
+            (!$statuseList)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_STATUS_LIST_RESULT_ERROR')
+                : $result['statusList'] = $statuseList;
+        }
+        $serviceListId = Bitrixfunction::getCoptionValue('SLOT_SERVISE_LIST');
+        if(!$serviceListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_ID_ERROR');
+        else{
+            $serviceList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $serviceListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+            );
+            (!$serviceList)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_RESULT_ERROR')
+                : $result['serviceList'] = $serviceList;
+        }
+
+
+
+
+
+
+
+        Bitrixfunction::sentAnswer($result);
+    }
+
+
     /*@method: получение значений для фильтра пользователей
     * @return: array*/
     private function getUsersListForFilter(){

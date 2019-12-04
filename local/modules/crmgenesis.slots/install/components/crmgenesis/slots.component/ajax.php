@@ -33,3 +33,7 @@ if($data['action'] == 'deleteSlot')
 // #6 Копирование слотов предыдущей недели на текущую
 if($data['action'] == 'copyPreviousWeekSlots')
     Crmgenesis\Slots\Calendar::copyPreviousWeekSlots($data['filters']);
+
+// #7 Получение списков значений полей popup Gsp
+if($data['action'] == 'getGspModalSelectFields')
+    Crmgenesis\Slots\Filter::getGspModalSelectFields($data['filters']);
