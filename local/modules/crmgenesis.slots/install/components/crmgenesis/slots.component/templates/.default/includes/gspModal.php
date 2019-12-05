@@ -30,7 +30,8 @@
                                     <label for="group-title">Клуб</label>
                                 </div>
                                 <div class="col-8">
-                                    <select v-model="slotClub" v-if="filterValueLists.slotClubList.length > 0" class="form-control" id="training-type">
+                                    <select v-model="slotClub" v-if="filterValueLists.slotClubList.length > 0"
+                                            @change="gspZoneFilterByClub" class="form-control" id="training-type">
                                         <option selected value="">Не выбрано</option>
                                         <option v-for="club in filterValueLists.slotClubList" :value="club.ID">{{club.NAME}}</option>
                                     </select>
@@ -50,12 +51,16 @@
 
                             <div class="form-group col row">
                                 <div class="col-4 text-right">
-                                    <label for="zone">Зона</label>
+                                    <label for="zone">Зона {{filterValueLists.slotSortedZoneList.length}}</label>
                                 </div>
                                 <div class="col-8">
-                                    <select v-model="slotZone" v-if="filterValueLists.slotZonaList.length > 0" class="form-control" id="location">
+                                    <select v-model="slotZone" :disabled="(filterValueLists.slotSortedZoneList.length > 0) ? false : true"
+                                            @change="gspLocationFilterByZone" class="form-control" id="zone">
                                         <option selected value="">Не выбрано</option>
-                                        <option v-for="zona in filterValueLists.slotZonaList" :value="zona.ID">{{zona.NAME}}</option>
+                                        <template v-if="filterValueLists.slotSortedZoneList.length > 0" >
+                                            <option v-for="zona in filterValueLists.slotSortedZoneList" :value="zona.ID">{{zona.NAME}}</option>
+                                        </template>
+
                                     </select>
                                 </div>
                             </div>
@@ -73,12 +78,15 @@
 
                             <div class="form-group col row">
                                 <div class="col-4 text-right">
-                                    <label for="location">Локация</label>
+                                    <label for="location">Локация {{filterValueLists.slotSortedLocationList.length}}</label>
                                 </div>
                                 <div class="col-8">
-                                    <select v-if="filterValueLists.slotLocationList.length > 0" class="form-control" id="location">
+                                    <select v-model="slotLocation" :disabled="(filterValueLists.slotSortedLocationList.length > 0) ? false : true" class="form-control" id="location">
                                         <option selected value="">Не выбрано</option>
-                                        <option v-for="location in filterValueLists.slotLocationList" :value="location.ID">{{location.NAME}}</option>
+                                        <template v-if="filterValueLists.slotSortedLocationList.length > 0" >
+                                            <option v-for="location in filterValueLists.slotSortedLocationList" :value="location.ID">{{location.NAME}}</option>
+                                        </template>
+
                                     </select>
                                 </div>
                             </div>

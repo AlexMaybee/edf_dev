@@ -118,8 +118,11 @@ class Filter{
         $zonaListId = Bitrixfunction::getCoptionValue('SLOT_ZONA_LIST');
         if(!$zonaListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_ID_ERROR');
         else{
-            $zonaList = Bitrixfunction::getListElements(
-                ['IBLOCK_ID' => $zonaListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+//            $zonaList = Bitrixfunction::getListElementsWithProperties( ['IBLOCK_ID' => $zonaListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+
+            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД!!!
+            $zonaList = Bitrixfunction::getListElemsOld(
+                ['IBLOCK_ID' => $zonaListId],['ID','NAME','PROPERTY_307'],['DATE_CREATE' => 'DESC']
             );
             (!$zonaListId)
                 ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_RESULT_ERROR')
@@ -129,8 +132,12 @@ class Filter{
         $locationListId = Bitrixfunction::getCoptionValue('SLOT_LOCATION_LIST');
         if(!$locationListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_LOCATION_LIST_ID_ERROR');
         else{
-            $locationList = Bitrixfunction::getListElements(
-                ['IBLOCK_ID' => $locationListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+//            $locationList = Bitrixfunction::getListElements(
+//                ['IBLOCK_ID' => $locationListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+
+            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД!!!
+            $locationList = Bitrixfunction::getListElemsOld(
+                ['IBLOCK_ID' => $locationListId],['ID','NAME','PROPERTY_308'],['DATE_CREATE' => 'DESC']
             );
             (!$locationList)
                 ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_LOCATION_LIST_RESULT_ERROR')

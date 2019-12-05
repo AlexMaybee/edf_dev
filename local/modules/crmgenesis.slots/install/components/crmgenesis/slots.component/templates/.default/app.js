@@ -12,7 +12,9 @@ let app = new Vue({
                 slotTypeList: [],
                 slotClubList: [],
                 slotZonaList: [],
+                slotSortedZoneList: [],
                 slotLocationList: [],
+                slotSortedLocationList: [],
                 slotCheckBoxList: [],
                 slotSortedUserList: [], //filterValueLists.slotSortedUserList //отсорированные по свведенным буквам пользователи
             },
@@ -368,7 +370,48 @@ let app = new Vue({
             this.filterValueLists.slotSortedUserList = [];
             // console.log('select empl:', userObj);
             // console.log('select empl:',  this.slotEmployee);
-        }
+        },
+
+        gspZoneFilterByClub: function () {
+            let zones = this.filterValueLists.slotZonaList,
+                selectedClub = this.slotClub;
+
+            this.slotZone = '';
+            this.slotLocation = '';
+
+            if(selectedClub.length > 0){
+                this.filterValueLists.slotSortedZoneList = zones.filter(function (elem) {
+                    if(selectedClub==='') return true;
+                    else return elem.PROPERTY_307_VALUE.indexOf(selectedClub) > -1;
+                });
+            }
+            else {
+                this.filterValueLists.slotSortedZoneList = [];
+                this.filterValueLists.slotSortedLocationList = [];
+            }
+
+            // console.log('filtered zones:',this.filterValueLists.slotSortedZoneList);
+        },
+
+        gspLocationFilterByZone: function () {
+            let locations = this.filterValueLists.slotLocationList,
+                selectedZone = this.slotZone;
+
+            //  slotLocationList: [],
+            //                 slotSortedLocationList: [],
+
+            this.slotLocation = '';
+
+            if(selectedZone.length > 0){
+                this.filterValueLists.slotSortedLocationList = locations.filter(function (elem) {
+                    if(selectedZone==='') return true;
+                    else return elem.PROPERTY_308_VALUE.indexOf(selectedZone) > -1;
+                });
+            }
+            else this.filterValueLists.slotSortedLocationList = [];
+
+            console.log('filtered locations:',this.filterValueLists.slotSortedLocationList);
+        },
 
     }
 })

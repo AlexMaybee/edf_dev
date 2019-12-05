@@ -71,12 +71,44 @@ class Bitrixfunction{
         return  \COption::GetOptionInt(self::MODULE_ID, $cOption);
     }
 
+    //ХУЙНЯ, НЕ ОТДАЕТ СВОЙСТВА, но используется!!!
     public function getListElements($filter,$select,$order=[]){
-        return $record = \Bitrix\Iblock\ElementTable::getList([
+        return $records = \Bitrix\Iblock\ElementTable::getList([
             'select' => $select,
             'filter' => $filter,
             'order' => $order,
         ])->fetchAll();
+    }
+
+    //ХУЙНЯ, НЕ ОТДАЕТ СВОЙСТВА, НЕ ИСПОЛЬЗУЕТСЯ!!!
+    public function getListElementsWithProperties($filter,$select,$order=[]){
+        $res = [];
+        $dbItems = \Bitrix\Iblock\ElementTable::getList(array(
+            'select' => $select,
+            'filter' => $filter,
+            'order' => $order,
+        ));
+        while ($arItem = $dbItems->fetch()){
+            \CModule::IncludeModule("iblock");
+            $dbProperty = \CIBlockElement::getProperty(
+                $arItem['IBLOCK_ID'],
+                $arItem['ID']
+            );
+            while($arProperty = $dbProperty->Fetch()){
+                $arItem['PROPERTIES'][$arProperty['CODE']] = $arProperty;
+            }
+            $res[] = $arItem;
+        }
+        return $res;
+    }
+
+    //РАБОЧИЙ, НО СТАРЫЙ!!!
+    public function getListElemsOld($filter,$select,$order){
+        $result = [];
+        $arr = \CIBlockElement::GetList($order,$filter,false,false,$select);
+        while($ob = $arr->getNext())
+            $result[] = $ob;
+        return $result;
     }
 
 }
