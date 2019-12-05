@@ -131,17 +131,11 @@
                                     <label for="employee">Сотрудник</label>
                                 </div>
                                 <div class="col-8 position-relative">
-                                    <input type="text" class="form-control" id="employee" v-model="slotEmployee" autofocus>
-<!--                                    <ul>-->
-<!--                                        <li v-for="user in array | filterBy slotEmployee in 'NAME'"></li>-->
-<!--                                    </ul>-->
+                                    <input @keyup="gspUserFilter" type="text" class="form-control" id="employee" v-model="slotEmployee.name" autofocus>
 
-                                    <!--<div>{{slotEmployee | toUpperCase}}</div>-->
-                                    <!--v-if="filterValueLists.slotSortedUserList.lenght > 0"-->
-                                    <div class="position-absolute col-11 slot-employee-absolute">
-                                        {{filterValueLists.slotSortedUserList.length}}
-                                        <ul>
-                                            <li v-for="user in filterValueLists.slotSortedUserList">{{user.ID}} - {{user.NAME}}</li>
+                                     <div class="position-absolute col-11 slot-employee-absolute pt-3 mt-1 rounded" v-show="filterValueLists.slotSortedUserList.length > 0">
+                                        <ul class="px-0">
+                                            <li @click="selectCurrentUserFromList(user)" v-for="user in filterValueLists.slotSortedUserList">{{user.NAME}}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -163,8 +157,8 @@
                                 <div>{{slotSelectedCheckboxes}}</div>
                                 <table class="table my-shedule-table text-center overflow-hidden" style="padding: 0">
                                     <thead>
-                                        <tr v-for="rowTh in filterValueLists.slotCheckBoxList.ths">
-                                            <template v-for="(thCol,colThInd) in rowTh">
+                                        <tr>
+                                            <template v-for="(thCol,colThInd) in filterValueLists.slotCheckBoxList.ths">
                                                 <th v-if="colThInd == 0">{{thCol.NAME}}</th>
                                                 <template v-else>
                                                     <th-function-component

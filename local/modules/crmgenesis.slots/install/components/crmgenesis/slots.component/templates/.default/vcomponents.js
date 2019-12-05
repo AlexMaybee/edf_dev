@@ -99,3 +99,28 @@ Vue.component('tr-td-function-component', {
     template:
         `<td @click="selectTimeAllCols()">{{time}}</td>`
 });
+
+// Vue.component('select-user-from-list-component', {
+//     data:  function(){
+//         return  {
+//             selectedUserId: 0,
+//         }
+//     },
+//     props: {
+//         filteredList: {},
+//     },
+//     watch:{
+//         selectedUserId: function () {
+//           console.log('selected User #',this.selectedUserId);
+//         },
+//     },
+//     template:
+//         `<div class="position-absolute col-11 slot-employee-absolute" v-show="filteredList.length > 0">
+//             {{filteredList.length}}
+//             <ul>
+//                 <li v-if="filteredList.length > 0" @click="selectedUserId = user.ID"
+//                 :data-userId="user.ID" v-for="user in filteredList">{{user.ID}} - {{user.NAME}}</li>
+//             </ul>
+//         </div>`,
+//
+// });

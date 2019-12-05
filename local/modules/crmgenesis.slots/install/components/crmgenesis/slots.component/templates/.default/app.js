@@ -30,7 +30,10 @@ let app = new Vue({
             seletedUserId: '',
             seletedSlotId: '', //id слота, для удаления/обновления
             slotClub: '', //клуб в gsp-Modal
-            slotEmployee: '', //сотрудник в gsp-Modal
+            slotEmployee: {
+                id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
+                name: '', //сотрудник в gsp-Modal
+            },
             slotLocation: '', //локация в gsp-Modal
             slotPeriodFrom: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
             slotPeriodTo: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
@@ -84,8 +87,6 @@ let app = new Vue({
         //данные пользователя + загрузка евентов календаря
         this.getUserRoleAndId();
 
-        // console.log('moment:',moment(new Date).hour(7).minute(0).format('hh:mm'));
-        // console.log('moment:'this.makeGspModalDateArray(););
     },
 
     watch: {
@@ -96,11 +97,6 @@ let app = new Vue({
             this.getUserSlots();
         },
 
-        slotEmployee: function () {
-            this.filterValueLists.slotSortedUserList = this.gspUserFilter();
-
-
-        },
 
     },
 
@@ -325,9 +321,8 @@ let app = new Vue({
                         this.filterValueLists.slotLocationList = response.data.locationList;
                         this.filterValueLists.slotTypeList = response.data.typeList;
 
-                        //создаем нужный массив
-                        //ЗАМЕНИТЬ СТАНДАРТНЫМ PHP
-                        this.filterValueLists.slotCheckBoxList = this.makeGspModalDateArray(response.data.dateTable);
+                        //вывод таблицы с чекбоксами
+                        this.filterValueLists.slotCheckBoxList = response.data.table;
 
                         console.log('slotCheckBoxList: ',this.filterValueLists.slotCheckBoxList)
 
@@ -336,46 +331,44 @@ let app = new Vue({
             }
         },
 
+
+
         //ТЕСТ попап добавления инфы в сохраненный слот
         openGspModal: function () {
             $('#gspModal').modal('show');
         },
 
-        makeGspModalDateArray: function (arr) {
-            let startH = 7,
-                startCh,
-                mainArr = {
-                    ths: [],
-                    tds: [],
-                };
-
-            mainArr.ths.push(arr);
-            while(startH < 23){
-                let array = [{'TIME': moment(new Date).hour(startH).minute(0).format('HH:mm'),'ID': startH}];
-                startCh = 1;
-                while(startCh <= 7) {
-                    array.push({'TIME':startH,'DAY':startCh});
-                    startCh++;
-                }
-                mainArr.tds.push(array);
-                startH++;
-            }
-            return mainArr;
-        },
 
 
         //фильтр для поля сотрудник
         gspUserFilter: function () {
-            let users = this.filterValueLists.users;
+            let users = this.filterValueLists.users,
+                inputStr = this.slotEmployee.name.toLowerCase();
 
-            console.log('filter',this.filterValueLists.users);
-            let comp = this.slotEmployee.toLowerCase();
-            return users.filter(function (elem) {
-
-                if(comp==='') return true;
-                else return elem.NAME.toLowerCase().indexOf(comp) > -1;
-            });
+            //обнуляем id пользователя каждый раз, как редактируется поле с именем
+            this.slotEmployee.id = 0;
+            if(inputStr.length > 0){
+                this.filterValueLists.slotSortedUserList = users.filter(function (elem) {
+                    if(inputStr==='') return true;
+                    else return elem.NAME.toLowerCase().indexOf(inputStr) > -1;
+                });
+            }
+            else this.filterValueLists.slotSortedUserList = [];
+            // console.log('filter',this.filterValueLists.slotSortedUserList);
         },
+
+        //выбор конкрутного сотрудника в поиске
+        selectCurrentUserFromList: function (userObj) {
+            this.slotEmployee = {
+                id: userObj.ID, //сотрудник в gsp-Modal
+                name: userObj.NAME,
+            };
+
+            //обнуляем массив, чтобы скрыть поле с вариантами
+            this.filterValueLists.slotSortedUserList = [];
+            // console.log('select empl:', userObj);
+            // console.log('select empl:',  this.slotEmployee);
+        }
 
     }
 })

@@ -54,26 +54,42 @@ class Filter{
             'locationList' => [],
             'statusList' => [],
             'serviceList' => [],
-            'dateTable' => [],
+            'table' => [
+                'ths' => [],
+                'tds' => [],
+            ],
             'errors' => [],
         ];
 
         //получения массива дней и часов для чекбоксов
-        $result['dateTable'] = [['NAME' => Loc::getMessage('CRM_GENESIS_SLOTS_THS_START_TEXT'), 'ID' => 0]];
+        $result['table']['ths'] = [['NAME' => Loc::getMessage('CRM_GENESIS_SLOTS_THS_START_TEXT'), 'ID' => 0]];
 
         //вывод всех дней недели в фильтр битрикс
         $i = 0;
         $strtDay = strtotime('last monday');
         while($i < 7){
-            array_push($result['dateTable'],
+            array_push($result['table']['ths'],
                 ['NAME' => FormatDate('D',strtotime(date('d.m.Y',$strtDay).'+'.$i.' day')),'ID' => $i+1]);
             $i++;
         }
-//        $strtTime = 7;
-//        while($strtTime < 23){
-//            array_push($result['dateTable'],$strtTime);
-//            $strtTime++;
-//        }
+
+        $strtTime = 7;
+        while($strtTime < 23){
+            $stringArr = [
+                [
+                'TIME' => date('H:i',
+                    mktime($strtTime, 0, 0, getdate()['mon'], getdate()['mday'], getdate()['year'])),
+                'ID' => $strtTime,
+                ],
+            ];
+            $strtDay = 1;
+            while($strtDay <= 7){
+                array_push($stringArr,['TIME' => $strtTime, 'DAY' => $strtDay]);
+                $strtDay++;
+            }
+            array_push($result['table']['tds'],$stringArr);
+            $strtTime++;
+        }
 
 
         //спискм значений для select gsp-popup
