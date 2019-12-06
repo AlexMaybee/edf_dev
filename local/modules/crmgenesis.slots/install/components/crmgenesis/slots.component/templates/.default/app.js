@@ -31,17 +31,51 @@ let app = new Vue({
             settings: {minTime: '07:00:00', maxTime: '22:30:00', slotDuration: '00:60:00', slotMinute: '60'},
             seletedUserId: '',
             seletedSlotId: '', //id слота, для удаления/обновления
-            slotClub: '', //клуб в gsp-Modal
-            slotEmployee: {
-                id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
-                name: '', //сотрудник в gsp-Modal
+
+            slotFilters: { //объект всех ролей gsp Modal
+                ageFrom: '', //Возраст с
+                ageTo: '', //Возраст до
+                club: '', //клуб в gsp-Modal
+                durationMins: '', //длительность в gsp-Modal
+                employee: {
+                    id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
+                    name: '', //сотрудник в gsp-Modal
+                },
+                groupName: '', //название группы
+                groupSize: '', //численность группы
+                location: '', //локация в gsp-Modal
+                periodFrom: moment(new Date).format('YYYY-MM-DD'),
+                periodTo: moment(new Date).format('YYYY-MM-DD'),
+                type: '',//тип (индивид., групп., сплит) в gsp-Modal
+                zone: '', //зона
+
             },
-            slotLocation: '', //локация в gsp-Modal
-            slotPeriodFrom: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
-            slotPeriodTo: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
+            // slotClub: '', //клуб в gsp-Modal
+            // slotEmployee: {
+            //     id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
+            //     name: '', //сотрудник в gsp-Modal
+            // },
+            // slotLocation: '', //локация в gsp-Modal
+            // slotPeriodFrom: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
+            // slotPeriodTo: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
             slotSelectedCheckboxes: [],//массив чекбоксов в gsp-Modal
-            slotType: '', //тип (индивид., групп., сплит) в gsp-Modal
-            slotZone: '', //зона в gsp-Modal
+            // slotType: '', //тип (индивид., групп., сплит) в gsp-Modal
+            // slotZone: '', //зона в gsp-Modal
+            slotValidateErrors: {  //объект с ошибками для каждого поля
+                ageFrom: '',
+                ageTo: '',
+                checkboxes: '',
+                club: '',
+                durationMins: '',
+                employee: '',
+                groupName: '',
+                groupSize: '',
+                location: '',
+                periodFrom: '',
+                periodTo: '',
+                type: '',
+                zona: '',
+            },
             workDayStart: '', //дата начала рабочего дня при выборе
             workDayFinish: '', //дата окончания раюочего дня при выборе
             workHoursThisWeek: {
@@ -249,10 +283,75 @@ let app = new Vue({
             }
         },
 
+        //Popup добавления инфы в уже существующий слот, пока срабатывает и от кнопки "Popup добавления инфы в слот"
+        openGspModal: function (dateFrom,dateTo,slotId) {
+            this.workDayStart = dateFrom;
+            this.workDayFinish = dateTo;
+            this.seletedSlotId = slotId;
+
+            //очистка ошибок
+            this.resetValidateErrors(this.slotValidateErrors);
+
+            if(this.seletedSlotId > 0)
+                this.getSlotData();
+
+            $('#gspModal').modal('show');
+        },
+
+        //получение данных выбранного слота
+        getSlotData: function(){
+            if(this.seletedSlotId > 0){
+                axios.post(this.request_url,
+                    {action:'getSlotById',
+                        filters: {
+                            'seletedSlotId':this.seletedSlotId,
+                        },
+                    }).then(response => {
+
+                    console.log('getSlotData: ',response.data)
+
+                    //если сохранилось, то закрываем попап
+                    if(response.data.result){
+
+                        /**
+                         slotFilters: { //объект всех ролей gsp Modal
+                ageFrom: '', //Возраст с
+                ageTo: '', //Возраст до
+                club: '', //клуб в gsp-Modal
+                durationMins: '', //длительность в gsp-Modal
+                employee: {
+                    id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
+                    name: '', //сотрудник в gsp-Modal
+                },
+                groupName: '', //название группы
+                groupSize: '', //численность группы
+                location: '', //локация в gsp-Modal
+                periodFrom: moment(new Date).format('YYYY-MM-DD'),
+                periodTo: moment(new Date).format('YYYY-MM-DD'),
+                type: '',//тип (индивид., групп., сплит) в gsp-Modal
+                zone: '', //зона
+
+            },
+                         */
+                    this.slotFilters.ageFrom = response.data.result.AGE_FROM;
+                    this.slotFilters.ageTo = response.data.result.AGE_TO;
+                    this.slotFilters.location = response.data.result.LOCATION_ID;
+                    this.slotFilters.employee = {
+                        id: response.data.result.USER_ID,
+                        name: response.data.result.USER_NAME,
+                    };
+
+                    }
+                    else console.log('v-ERROR:',response.data.errors)
+                }).catch(err => console.log(err));
+            }
+        },
+
         //удаление слота из календаря
         deleteSlot: function () {
             if(this.seletedUserId){
-                console.log('Del slot # ' + this.seletedSlotId);
+
+               // console.log('Del slot # ' + this.seletedSlotId);
 
                 axios.post(this.request_url,
                     {action:'deleteSlot',
@@ -265,7 +364,7 @@ let app = new Vue({
 
                     //если сохранилось, то закрываем попап
                     if(response.data.result){
-                        $('#workDayInCalendar').modal('hide');
+                        $('#gspModal').modal('hide');
                     }
                     else console.log('v-ERROR:',response.data.errors)
 
@@ -277,7 +376,6 @@ let app = new Vue({
                     this.workDayFinish = '';
                     this.seletedSlotId = '';
                 }).catch(err => console.log(err));
-
             }
         },
 
@@ -328,27 +426,18 @@ let app = new Vue({
 
                         console.log('slotCheckBoxList: ',this.filterValueLists.slotCheckBoxList)
 
-
                 }).catch(err => console.log(err));
             }
         },
 
 
-
-        //ТЕСТ попап добавления инфы в сохраненный слот
-        openGspModal: function () {
-            $('#gspModal').modal('show');
-        },
-
-
-
         //фильтр для поля сотрудник
         gspUserFilter: function () {
             let users = this.filterValueLists.users,
-                inputStr = this.slotEmployee.name.toLowerCase();
+                inputStr = this.slotFilters.employee.name.toLowerCase();
 
             //обнуляем id пользователя каждый раз, как редактируется поле с именем
-            this.slotEmployee.id = 0;
+            this.slotFilters.employee.id = 0;
             if(inputStr.length > 0){
                 this.filterValueLists.slotSortedUserList = users.filter(function (elem) {
                     if(inputStr==='') return true;
@@ -361,7 +450,7 @@ let app = new Vue({
 
         //выбор конкрутного сотрудника в поиске
         selectCurrentUserFromList: function (userObj) {
-            this.slotEmployee = {
+            this.slotFilters.employee = {
                 id: userObj.ID, //сотрудник в gsp-Modal
                 name: userObj.NAME,
             };
@@ -369,15 +458,15 @@ let app = new Vue({
             //обнуляем массив, чтобы скрыть поле с вариантами
             this.filterValueLists.slotSortedUserList = [];
             // console.log('select empl:', userObj);
-            // console.log('select empl:',  this.slotEmployee);
+            // console.log('select empl:',  this.slotFilters.employee);
         },
 
         gspZoneFilterByClub: function () {
             let zones = this.filterValueLists.slotZonaList,
-                selectedClub = this.slotClub;
+                selectedClub = this.slotFilters.club;
 
-            this.slotZone = '';
-            this.slotLocation = '';
+            this.slotFilters.zone = '';
+            this.slotFilters.location = '';
 
             if(selectedClub.length > 0){
                 this.filterValueLists.slotSortedZoneList = zones.filter(function (elem) {
@@ -395,12 +484,9 @@ let app = new Vue({
 
         gspLocationFilterByZone: function () {
             let locations = this.filterValueLists.slotLocationList,
-                selectedZone = this.slotZone;
+                selectedZone = this.slotFilters.zone;
 
-            //  slotLocationList: [],
-            //                 slotSortedLocationList: [],
-
-            this.slotLocation = '';
+            this.slotFilters.location = '';
 
             if(selectedZone.length > 0){
                 this.filterValueLists.slotSortedLocationList = locations.filter(function (elem) {
@@ -411,6 +497,100 @@ let app = new Vue({
             else this.filterValueLists.slotSortedLocationList = [];
 
             console.log('filtered locations:',this.filterValueLists.slotSortedLocationList);
+        },
+
+        //сборс ошибок у выбранного объекта с ошибками
+        resetValidateErrors: function(obj){
+            $.each(obj, function (key,val) {
+                obj[key] = '';
+                // console.log(key,val);
+            });
+        },
+
+        //проверяем, есть ли тект ошибок в выбранном объекте
+        countErrorsInObject: function(obj){
+            let num = 0;
+            $.each(obj, function (key,val) {
+                if(val.length > 0)
+                    num++;
+                // console.log(key,val);
+            });
+            console.log('err num:',num);
+            return num;
+        },
+
+        //Валидация попапа
+        validateGspModal: function () {
+            let dateRegExp = /^[\d]{4}-[\d]{2}-[\d]{2}/;
+            this.resetValidateErrors(this.slotValidateErrors);
+
+            if(this.slotFilters.type.trim() <= 0 )
+                this.slotValidateErrors.type = 'Выберите Тип!';
+
+            if(!dateRegExp.test(this.slotFilters.periodFrom.trim()))
+                this.slotValidateErrors.periodFrom = 'Укажите начало периода!';
+
+            if(!dateRegExp.test(this.slotFilters.periodTo.trim()))
+                this.slotValidateErrors.periodTo = 'Укажите окончание периода!';
+
+            if(this.slotFilters.club.trim() <= 0 )
+                this.slotValidateErrors.club = 'Выберите Клуб!';
+
+            if(this.slotFilters.zone.trim() <= 0 )
+                this.slotValidateErrors.zona = 'Выберите Зону!';
+
+            if(this.slotFilters.location.trim() <= 0 )
+                this.slotValidateErrors.location = 'Выберите Локацию!';
+
+            if(this.slotFilters.ageFrom.trim() <= 0 )
+                this.slotValidateErrors.ageFrom = 'Укажите начальный возраст!';
+
+            if(this.slotFilters.ageTo.trim() <= 0 )
+                this.slotValidateErrors.ageTo = 'Укажите конечный возраст!';
+
+            if(this.slotFilters.groupSize.trim() <= 0 )
+                this.slotValidateErrors.groupSize = 'Укажите Численность группы!';
+
+            if(this.slotFilters.durationMins.trim() <= 0 )
+                this.slotValidateErrors.durationMins = 'Укажите Длительность в минутах!';
+
+            if(this.slotFilters.employee.id <= 0 )
+                this.slotValidateErrors.employee = 'Выберите Сотрудника!';
+
+            if(this.slotFilters.groupName <= 0 )
+                this.slotValidateErrors.groupName = 'Укажите Название группы!';
+
+
+            if(this.countErrorsInObject(this.slotValidateErrors) == 0) {
+                console.log('Save in DB!!!');
+                if (this.seletedSlotId > 0)
+                    this.updateSlot();
+                //иначе создание какого-то расписания и кучу слотов для выбранного сотрудника
+                //else
+            }
+
+            //groupName
+            console.log('dates Gsp:',this.slotFilters);
+            console.log('Validation Gsp:',this.slotValidateErrors);
+        },
+
+        //запись выбранных данных в существующем слоте
+        updateSlot: function () {
+            axios.post(this.request_url,
+                {action:'updateSlot',
+                    filters: this.slotFilters,
+                    slotId: this.seletedSlotId,
+                    // checkboxes: this.slotSelectedCheckboxes,
+                }).then(response => {
+
+                console.log('updateSlot: ',response.data)
+
+                if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+
+                //перезапуск функции получения евентов на выбранную неделю
+                // this.getUserSlots();
+
+            }).catch(err => console.log(err));
         },
 
     }

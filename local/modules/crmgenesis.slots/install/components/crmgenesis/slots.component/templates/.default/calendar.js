@@ -120,7 +120,7 @@ Vue.component('calendar', {
                 var char_two = event.id.charAt(0);
 
                 //popup создания/удаления слота
-                app.openWorkDayAddPopup(
+                app.openGspModal(
                     moment(event.start._i).format('YYYY-MM-DDTHH:mm'),
                     moment(event.end._i).format('YYYY-MM-DDTHH:mm'),
                     event.id)
@@ -140,7 +140,7 @@ Vue.component('calendar', {
                 app.FilterEventsDate(view.start);
             },
 
-            // schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
+            schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source'
         }
 
         self.cal.fullCalendar(args);

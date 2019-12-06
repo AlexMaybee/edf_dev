@@ -52,6 +52,20 @@ class Bitrixfunction{
         return $result;
     }
 
+    public function updateSlot($id,$updFields){
+        $result = ['result' => false,'errors' => []];
+        $updResult = SlotsTable::Update($id,$updFields);
+        (!$updResult->isSuccess())
+            ? $result['errors'] = $updResult->getErrorMessages()
+            : $result['result'] = $updResult;
+//        $entity = new SlotsTable(false);
+//        $updSlot = $entity->update($id,$updFields);
+//        ($updSlot)
+//            ? $result['result'] = $updSlot
+//            : $result['error'] = $entity->LAST_ERROR;
+        return $result;
+    }
+
     public function getSlotList($filter,$select,$order=[]){
         return $record = SlotsTable::getList([
             'select' => $select,

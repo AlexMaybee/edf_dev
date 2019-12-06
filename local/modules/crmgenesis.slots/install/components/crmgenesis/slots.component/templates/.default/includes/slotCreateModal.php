@@ -12,17 +12,16 @@
                 <form id="sendFormCategoryDeal" onsubmit="return false" method="POST">
                     <div class="form-group required">
                         <label class="form-control-label" for="workDayStart">Начало:</label>
-                        <input type="datetime-local" id="workDayStart" name="workDayStart" class="form-control"
-                               disabled="disabled" v-model="workDayStart">
+                        <input type="datetime-local" id="workDayStart" name="workDayStart" class="form-control "
+                               v-model="workDayStart" disabled>
                     </div>
                     <div class="form-group required">
                         <label class="form-control-label" for="workDayFinish">Окончание:</label>
                         <input type="datetime-local" id="workDayFinish" name="workDayFinish" class="form-control"
-                               disabled="disabled" v-model="workDayFinish">
+                               v-model="workDayFinish" disabled>
                     </div>
                     <div class="modal-footer">
                         <button v-if="!seletedSlotId" @click="addWorkPeriodToCalendar" class="btn btn-primary">Сохранить</button>
-                        <button v-if="seletedSlotId" @click="deleteSlot" class="btn btn-danger">Удалить</button>
                     </div>
                 </form>
             </div>

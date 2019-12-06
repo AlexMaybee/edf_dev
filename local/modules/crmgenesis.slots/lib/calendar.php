@@ -128,8 +128,8 @@ class Calendar{
                     'color' => $colors['block'],
                     'textColor' => $colors['text'],
                     'editable' => false, //запрет редактирования записи
-                    'h' => $event['H'], //запрет редактирования записи
-                    'm' => $event['M'], //запрет редактирования записи
+//                    'h' => $event['H'], //запрет редактирования записи
+//                    'm' => $event['M'], //запрет редактирования записи
                 ];
             }
 
@@ -158,6 +158,9 @@ class Calendar{
 
     /*
     * @method метод для сохранения выбранного рабочего времени каждого сотрудника
+     *
+     *       !!! НЕ ВСТАВЯЛЕТ ВРЕМЯ И ID создвшего!!!!
+     *
     * @return events by filter for cur user
     */
     public function addWorkPeriodToCalendar($filters){
@@ -184,6 +187,8 @@ class Calendar{
                         date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
                         "d.m.Y H:i:s"),
                     'USER_ID' => $filters['seletedUserId'],
+//                    'DATE_CREATE' => new \Bitrix\Main\Type\DateTime('now', "d.m.Y H:i:s"),
+//                    'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
                 ]);
 
                 ($addRes['result'])
@@ -206,6 +211,67 @@ class Calendar{
     */
     public function deleteSlotFromCalendar($filters){
         $result = Bitrixfunction::deleteSlot($filters['seletedSlotId']);
+        Bitrixfunction::sentAnswer($result);
+    }
+
+    /*
+    * @method: обновляет выбранный слот  !!! НЕ ВСТАВЯЛЕТ ВРЕМЯ И ID обновлявшего!!!!
+    * @return arr*/
+    public function updateSlotInCalendar($filters,$slotId){
+        $result = [
+            'errors' => [],
+            'result' => [],
+        ];
+        $updFields = [
+//            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
+//                date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour')),
+//                "d.m.Y H:i:s"),
+//            'DATE_TO' => new \Bitrix\Main\Type\DateTime(
+//                date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
+//                "d.m.Y H:i:s"),
+            'AGE_FROM' => $filters['ageFrom'],
+            'AGE_TO' => $filters['ageTo'],
+            'USER_ID' => $filters['employee']['id'],
+            'LOCATION_ID' => $filters['location'],
+//            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime(date("d.m.Y H:i:s"), "d.m.Y H:i:s"),
+//            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+        ];
+        $result = Bitrixfunction::updateSlot($slotId,$updFields);
+        $result['userUPDfields'] = $updFields;
+
+        Bitrixfunction::sentAnswer($result);
+    }
+
+    /*
+   * @method: получает даныне выбранного слота
+   * @return arr*/
+    public function getSlotInCalendar($filters){
+        $result = [
+            'error' => false,
+            'result' => [],
+        ];
+
+        $slotArr = SlotsTable::getList([
+            'select' => ['*'],
+            'filter' => ['ID' => $filters['seletedSlotId']],
+            'order' => ['DATE_FROM' => 'ASC'],
+        ]);
+        if($slotData = $slotArr->fetch()){
+//            $slotData['DATE_FROM'] =  date('Y-m-d H:i:s', strtotime($slotData['DATE_FROM']));
+//            $slotData['DATE_TO'] =  date('Y-m-d H:i:s', strtotime($slotData['DATE_TO']));
+            if($slotData['USER_ID']){
+                $userData = \Bitrix\Main\UserTable::getList([
+                    'select' => ['ID','LAST_NAME','NAME'],
+                    'filter' => ['ID' => $slotData['USER_ID']],
+                ])->fetch();
+                if($userData)
+                    $slotData['USER_NAME'] = $userData['LAST_NAME'].' '.$userData['NAME'];
+            }
+            $result['result'] = $slotData;
+        }
+        else $result['error'] = Loc::getMessage('CRM_GENESIS_CALENDAR_GET_CLICKED_SLOT_BY_ID_ERROR');
+        $result['tets'] = $slotArr;
+
         Bitrixfunction::sentAnswer($result);
     }
 

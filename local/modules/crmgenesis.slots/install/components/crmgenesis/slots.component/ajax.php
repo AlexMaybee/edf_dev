@@ -14,7 +14,7 @@ $data = json_decode(json_encode(json_decode(file_get_contents("php://input"))),t
 if($data['action'] == 'getUserRoleAndId')
     Crmgenesis\Slots\Filter::getUserRoleAndId();
 
-// # 2 Получение списков значений в фильтры, если пользователь == админ
+// # 2 Получение списков значений в фильтры, если пользователь == админ (над календарем))
 if($data['action'] == 'getDataForFilters')
     Crmgenesis\Slots\Filter::getDataForFilters();
 
@@ -37,3 +37,11 @@ if($data['action'] == 'copyPreviousWeekSlots')
 // #7 Получение списков значений полей popup Gsp
 if($data['action'] == 'getGspModalSelectFields')
     Crmgenesis\Slots\Filter::getGspModalSelectFields($data['filters']);
+
+// #8 Сохранение данных в ранее пустом но созданном слоте
+if($data['action'] == 'updateSlot')
+    Crmgenesis\Slots\Calendar::updateSlotInCalendar($data['filters'],$data['slotId']);
+
+// #9 Получение данных слота при открытии gsp Modal
+if($data['action'] == 'getSlotById')
+    Crmgenesis\Slots\Calendar::getSlotInCalendar($data['filters']);
