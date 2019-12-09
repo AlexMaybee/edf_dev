@@ -36,16 +36,17 @@ class Bitrixfunction{
     //Моя таблица Slots
     public function addSlot($fields){
         $result = ['result' => false,'errors' => []];
-        $addResult = SlotsTable::add($fields);
+        $addResult = SlotTable::add($fields);
         (!$addResult->isSuccess())
             ? $result['errors'] = $addResult->getErrorMessages()
-            : $result['result'] = $addResult->getData();
+//            : $result['result'] = $addResult->getData();
+            : $result['result'] = $addResult->getId();
         return $result;
     }
 
     public function deleteSlot($id){
         $result = ['result' => false,'errors' => []];
-        $delResult = SlotsTable::delete($id);
+        $delResult = SlotTable::delete($id);
         (!$delResult->isSuccess())
             ? $result['errors'] = $delResult->getErrorMessages()
             : $result['result'] = $delResult;
@@ -54,11 +55,11 @@ class Bitrixfunction{
 
     public function updateSlot($id,$updFields){
         $result = ['result' => false,'errors' => []];
-        $updResult = SlotsTable::Update($id,$updFields);
+        $updResult = SlotTable::Update($id,$updFields);
         (!$updResult->isSuccess())
             ? $result['errors'] = $updResult->getErrorMessages()
             : $result['result'] = $updResult;
-//        $entity = new SlotsTable(false);
+//        $entity = new SlotTable(false);
 //        $updSlot = $entity->update($id,$updFields);
 //        ($updSlot)
 //            ? $result['result'] = $updSlot
@@ -67,11 +68,21 @@ class Bitrixfunction{
     }
 
     public function getSlotList($filter,$select,$order=[]){
-        return $record = SlotsTable::getList([
+        return $record = SlotTable::getList([
             'select' => $select,
             'filter' => $filter,
             'order' => $order,
         ])->fetchAll();
+    }
+
+    //Моя таблица Slot_business
+    public function addSlotBusiness($fields){
+        $result = ['result' => false,'errors' => []];
+        $addResult = Slot_businessTable::add($fields);
+        (!$addResult->isSuccess())
+            ? $result['errors'] = $addResult->getErrorMessages()
+            : $result['result'] = $addResult->getId();
+        return $result;
     }
 
     public function returnDiffBetweenDatesInCurFormat($curD,$diffD,$form){
@@ -84,6 +95,11 @@ class Bitrixfunction{
     public function getCoptionValue($cOption){
         return  \COption::GetOptionInt(self::MODULE_ID, $cOption);
     }
+
+
+
+
+    //***************************************************************************************************
 
     //ХУЙНЯ, НЕ ОТДАЕТ СВОЙСТВА, но используется!!!
     public function getListElements($filter,$select,$order=[]){
@@ -123,6 +139,17 @@ class Bitrixfunction{
         while($ob = $arr->getNext())
             $result[] = $ob;
         return $result;
+    }
+
+    //***************************************************************************************************
+
+
+
+    //получение № дня по дате
+    public function getDayWeek($date_custom)
+    {
+        $day_week = date('N', strtotime($date_custom));
+        return $day_week;
     }
 
 }

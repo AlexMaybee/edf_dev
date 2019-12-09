@@ -60,29 +60,13 @@ class Calendar{
 
 //        $result['filter'] = $filter;
 
-        $recordArr = SlotsTable::getList([
+        $recordArr = SlotTable::getList([
             'select' => ['*'],
             'filter' => $filter,
             'order' => ['ID' => 'ASC'],
         ]);
 
         while($event = $recordArr->fetch()){
-
-            //текущая неделя
-//            $diffStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-//                date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-//            $diffEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-//                date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'])),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
-
-            //за месяц
-//            $diffMonthStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-//                date('d.m.Y H:i:s',strtotime($firstMonthDay)),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-//            $diffMonthEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-//                date('d.m.Y H:i:s',strtotime($lastMonthDay)),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
 
             $event['H'] = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
                 date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),
@@ -95,8 +79,7 @@ class Calendar{
 //            $result['testWeekElems'][$event['ID']] = [$event['H'],$event['M']];
 
 
-            //month
-//            if($diffMonthStartRes >= 0 && $diffMonthEndRes <= 0){
+            //за месяц
             if(strtotime($event['DATE_FROM']) >= strtotime($firstMonthDay) &&
                 strtotime($event['DATE_TO']) <= strtotime($lastMonthDay.' 23:59:59')){
                 $result['workHoursThisMonth']['hours'] += $event['H'];
@@ -105,12 +88,7 @@ class Calendar{
             }
 
 
-            //week
-//            if($diffStartRes >= 0 && $diffEndRes <= 0){
-//            date('d.m.Y H:i:s',strtotime($filters['firstWeekDay'])),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-//            date('d.m.Y H:i:s',strtotime($filters['lastWeekDay'])),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_TO']))
+            //текущая неделя
             if(strtotime($event['DATE_FROM']) >= strtotime($filters['firstWeekDay']) &&
                 strtotime($event['DATE_TO']) <= strtotime($filters['lastWeekDay'].' 23:59:59')){
                 $result['workHoursThisWeek']['hours'] += $event['H'];
@@ -134,13 +112,6 @@ class Calendar{
             }
 
             //прошлая неделя
-//            $diffLastWeekStartRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-//                date('d.m.Y H:i:s',strtotime($previousWeekFirstDay)),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_FROM'])),'%R%a');
-//            $diffLastWeekEndRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-//                date('d.m.Y H:i:s',strtotime($previousWeekLastDay)),
-//                date('d.m.Y H:i:s',strtotime($event['DATE_TO'])),'%R%a');
-//            if($diffLastWeekStartRes >= 0 && $diffLastWeekEndRes <= 0) {
             if(strtotime($event['DATE_FROM']) >= strtotime($previousWeekFirstDay) &&
                 strtotime($event['DATE_TO']) <= strtotime($previousWeekLastDay.' 23:59:59')){
                 $event['DATE_FROM'] =  date('d.m.Y H:i:s',strtotime($event['DATE_FROM']));
@@ -187,8 +158,8 @@ class Calendar{
                         date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
                         "d.m.Y H:i:s"),
                     'USER_ID' => $filters['seletedUserId'],
-//                    'DATE_CREATE' => new \Bitrix\Main\Type\DateTime('now', "d.m.Y H:i:s"),
-//                    'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+                    'DATE_CREATE' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                    'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
                 ]);
 
                 ($addRes['result'])
@@ -217,30 +188,118 @@ class Calendar{
     /*
     * @method: обновляет выбранный слот  !!! НЕ ВСТАВЯЛЕТ ВРЕМЯ И ID обновлявшего!!!!
     * @return arr*/
-    public function updateSlotInCalendar($filters,$slotId){
+    public function updateSlotInCalendar($filters,$slotId,$workDateStart,$workDateFinish){
         $result = [
             'errors' => [],
             'result' => [],
         ];
         $updFields = [
-//            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
-//                date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour')),
-//                "d.m.Y H:i:s"),
-//            'DATE_TO' => new \Bitrix\Main\Type\DateTime(
-//                date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
-//                "d.m.Y H:i:s"),
+            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
+            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
+            'STATUS_ID' => 0, //пока не понятно для чего
+            'TYPE_ID' => $filters['type'],
+            'CLUB_ID' => $filters['club'],
+            'ZONE_ID' => $filters['zone'],
+            'LOCATION_ID' => $filters['location'],
             'AGE_FROM' => $filters['ageFrom'],
             'AGE_TO' => $filters['ageTo'],
+            'GROUP_SIZE' => $filters['groupSize'],
+            'GROUP_NAME' => $filters['groupName'],
             'USER_ID' => $filters['employee']['id'],
-            'LOCATION_ID' => $filters['location'],
-//            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime(date("d.m.Y H:i:s"), "d.m.Y H:i:s"),
-//            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+            'DATE_MODIFY' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
         ];
         $result = Bitrixfunction::updateSlot($slotId,$updFields);
         $result['userUPDfields'] = $updFields;
 
         Bitrixfunction::sentAnswer($result);
     }
+
+
+
+    /*
+     * @method: создание множества слотов + заполнение второй таблицы по чекбоксам в указанный период
+     * @return: array
+     * */
+    public function addFilledSlotsBetweenPeriod($filters,$checkboxes){
+        $result = [
+            'errors' => [],
+            'result' => [],
+        ];
+
+        $countDaysBetween = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+            date ('d.m.Y',strtotime($filters['periodFrom'])), date('d.m.Y',strtotime($filters['periodTo'])),'%R%a');
+
+
+        $defStatusId = Bitrixfunction::getCoptionValue('SLOT_DEFAULT_STATUS');
+
+
+        $result['count_dif_D'] = $countDaysBetween;
+        $result['count_dif_D_Num'] = (int)$countDaysBetween;
+
+
+
+        // 1я цифра - № дня недели, 2я - время начала
+        if($countDaysBetween > 0){
+            foreach ($checkboxes as $chbx){
+                $chbxArr = explode('_',$chbx);
+
+                for ($i = 0; $i <= (int)$countDaysBetween; $i++) {
+                    $weekDay = Bitrixfunction::getDayWeek(date('d.m.Y',strtotime($filters['periodFrom'].' +'.$i.'day')));
+                    $result['lolo'][] = $chbxArr[0].' - '.$weekDay;
+
+                    if($chbxArr[0] == $weekDay){
+
+
+
+                        $addRes = Bitrixfunction::addSlot([
+//                            'DATE_FROM1' => date('d.m.Y H:i:s',strtotime($filters['periodFrom'].' '.$chbxArr[1].':00:00 +'.$i.' day')),
+//                            'DATE_TO1' => date('d.m.Y H:i:s',strtotime($filters['periodFrom'].' '.$chbxArr[1].':00:00 +'.$i.' day + 1 hour')),
+
+                            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['periodFrom'].' '.$chbxArr[1].':00:00 +'.$i.' day')),"d.m.Y H:i:s"),
+                            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['periodFrom'].' '.$chbxArr[1].':00:00 +'.$i.' day + 1 hour')),"d.m.Y H:i:s"),
+                            'STATUS_ID' => 0, //пока не понятно для чего
+                            'TYPE_ID' => $filters['type'],
+                            'CLUB_ID' => $filters['club'],
+                            'ZONE_ID' => $filters['zone'],
+                            'LOCATION_ID' => $filters['location'],
+                            'AGE_FROM' => $filters['ageFrom'],
+                            'AGE_TO' => $filters['ageTo'],
+                            'GROUP_SIZE' => $filters['groupSize'],
+                            'GROUP_NAME' => $filters['groupName'],
+                            'USER_ID' => $filters['employee']['id'],
+                            'DATE_CREATE' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                            'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
+                        ]);
+
+                        $result['new_test_arr'][] = $addRes;
+                        if(!$addRes['result']) $result['errors'][] = 'Ошибка при создании элемента в 1й таблицы с датой';
+                        else{
+                            $addBusinessRes = Bitrixfunction::addSlotBusiness([
+                                'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['periodFrom'].' '.$chbxArr[1].':00:00 +'.$i.' day')),"d.m.Y H:i:s"),
+                                'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($filters['periodFrom'].' '.$chbxArr[1].':00:00 +'.$i.' day + 1 hour')),"d.m.Y H:i:s"),
+                                'STATUS_ID' => $defStatusId, //пока не понятно для чего
+                                'OWNER_ID' => $addRes['result'],
+                                'DATE_CREATE' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                                'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
+                            ]);
+
+                            if(!$addBusinessRes['result']) $result['errors'][] = 'Ошибка при создании элемента в 2й таблицы с ID первой = '.$addRes['result'];
+                            else $result['result'][] = $addBusinessRes['result'];
+                        }
+                    }
+                }
+            }
+
+
+        }
+
+
+        Bitrixfunction::sentAnswer($result);
+    }
+
+
+
 
     /*
    * @method: получает даныне выбранного слота
@@ -251,7 +310,7 @@ class Calendar{
             'result' => [],
         ];
 
-        $slotArr = SlotsTable::getList([
+        $slotArr = SlotTable::getList([
             'select' => ['*'],
             'filter' => ['ID' => $filters['seletedSlotId']],
             'order' => ['DATE_FROM' => 'ASC'],
@@ -261,7 +320,7 @@ class Calendar{
 //            $slotData['DATE_TO'] =  date('Y-m-d H:i:s', strtotime($slotData['DATE_TO']));
             if($slotData['USER_ID']){
                 $userData = \Bitrix\Main\UserTable::getList([
-                    'select' => ['ID','LAST_NAME','NAME'],
+                    'select' => ['*'],
                     'filter' => ['ID' => $slotData['USER_ID']],
                 ])->fetch();
                 if($userData)
@@ -285,7 +344,7 @@ class Calendar{
         ];
 
 
-        $recordArr = SlotsTable::getList([
+        $recordArr = SlotTable::getList([
             'select' => ['USER_ID','DATE_FROM','DATE_TO'],
             'filter' => [
                 '>=DATE_FROM' => date('d.m.Y',strtotime($filters['firstWeekDay'].' -1 week')),

@@ -21,7 +21,9 @@
                                v-model="workDayFinish" disabled>
                     </div>
                     <div class="modal-footer">
-                        <button v-if="!seletedSlotId" @click="addWorkPeriodToCalendar" class="btn btn-primary">Сохранить</button>
+
+                        <!--v-if="!seletedSlotId"-->
+                        <button @click="addWorkPeriodToCalendar" class="btn btn-primary">Сохранить</button>
                     </div>
                 </form>
             </div>

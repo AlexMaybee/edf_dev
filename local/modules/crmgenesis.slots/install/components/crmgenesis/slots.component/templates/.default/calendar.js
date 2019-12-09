@@ -109,8 +109,9 @@ Vue.component('calendar', {
                 endDate = moment(endDate).format('YYYY-MM-DDTHH:mm');
 
                 //добавляем в переменные и показываем попап
-                app.openWorkDayAddPopup(startDate,endDate,'');
-                
+                // app.openWorkDayAddPopup(startDate,endDate,'');
+                app.openWorkDayAddPopup(startDate,endDate);
+
                 console.log(startDate);
                 console.log(endDate);
             },

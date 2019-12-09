@@ -40,8 +40,12 @@ if($data['action'] == 'getGspModalSelectFields')
 
 // #8 Сохранение данных в ранее пустом но созданном слоте
 if($data['action'] == 'updateSlot')
-    Crmgenesis\Slots\Calendar::updateSlotInCalendar($data['filters'],$data['slotId']);
+    Crmgenesis\Slots\Calendar::updateSlotInCalendar($data['filters'],$data['slotId'],$data['workDayStart'],$data['workDayFinish']);
 
 // #9 Получение данных слота при открытии gsp Modal
 if($data['action'] == 'getSlotById')
     Crmgenesis\Slots\Calendar::getSlotInCalendar($data['filters']);
+
+// #10 Создание слотов + данных во второй таблице по чекбоксам за период из gsp Modal
+if($data['action'] == 'addFilledSlotsBetweenPeriod')
+    Crmgenesis\Slots\Calendar::addFilledSlotsBetweenPeriod($data['filters'],$data['checkboxes']);

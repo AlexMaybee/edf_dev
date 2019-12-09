@@ -40,7 +40,7 @@
                                     <select v-model="slotFilters.type" v-if="filterValueLists.slotTypeList.length > 0"
                                             :class="{'my-error-border': slotValidateErrors.type.length > 0}"
                                             class="form-control" id="training-type">
-                                        <option selected value="">Не выбрано</option>
+                                        <option selected value="0">Не выбрано</option>
                                         <option v-for="type in filterValueLists.slotTypeList" :value="type.ID">{{type.NAME}}</option>
                                     </select>
                                     <div v-show="slotValidateErrors.type.length > 0" class="my-error">{{slotValidateErrors.type}}</div>
@@ -55,7 +55,7 @@
                                     <select v-model="slotFilters.club" v-if="filterValueLists.slotClubList.length > 0"
                                             :class="{'my-error-border': slotValidateErrors.club.length > 0}"
                                             @change="gspZoneFilterByClub" class="form-control" id="club">
-                                        <option selected value="">Не выбрано</option>
+                                        <option selected value="0">Не выбрано</option>
                                         <option v-for="club in filterValueLists.slotClubList" :value="club.ID">{{club.NAME}}</option>
                                     </select>
                                     <div v-show="slotValidateErrors.club.length > 0" class="my-error">{{slotValidateErrors.club}}</div>
@@ -85,7 +85,7 @@
                                     <select v-model="slotFilters.zone" :disabled="(filterValueLists.slotSortedZoneList.length > 0) ? false : true"
                                             :class="{'my-error-border': slotValidateErrors.zona.length > 0}"
                                             @change="gspLocationFilterByZone" class="form-control" id="zone">
-                                        <option selected value="">Не выбрано</option>
+                                        <option selected value="0">Не выбрано</option>
                                         <template v-if="filterValueLists.slotSortedZoneList.length > 0" >
                                             <option v-for="zona in filterValueLists.slotSortedZoneList" :value="zona.ID">{{zona.NAME}}</option>
                                         </template>
@@ -115,10 +115,10 @@
                                 </div>
                                 <div class="col-8">
                                     <select v-model="slotFilters.location"
-                                            :disabled="(filterValueLists.slotSortedLocationList.length > 0) ? false : true"
+                                            :disabled="(filterValueLists.slotSortedLocationList.length > 0 && filterValueLists.slotSortedZoneList.length > 0) ? false : true"
                                             :class="{'my-error-border': slotValidateErrors.location.length > 0}"
                                             class="form-control" id="location">
-                                        <option selected value="">Не выбрано</option>
+                                        <option selected value="0">Не выбрано</option>
                                         <template v-if="filterValueLists.slotSortedLocationList.length > 0" >
                                             <option v-for="location in filterValueLists.slotSortedLocationList" :value="location.ID">{{location.NAME}}</option>
                                         </template>
@@ -190,7 +190,6 @@
                                     <input @keyup="gspUserFilter" type="text" class="form-control" id="employee"
                                            :class="{'my-error-border': slotValidateErrors.employee.length > 0}"
                                            v-model="slotFilters.employee.name" autofocus>
-                                    <div v-show="slotValidateErrors.employee.length > 0" class="my-error">{{slotValidateErrors.employee}}</div>
                                      <div class="position-absolute col-11 slot-employee-absolute pt-3 mt-1 rounded"
                                           v-show="filterValueLists.slotSortedUserList.length > 0">
                                         <ul class="px-0">
@@ -198,6 +197,7 @@
                                                 v-for="user in filterValueLists.slotSortedUserList">{{user.NAME}}</li>
                                         </ul>
                                     </div>
+                                    <div v-show="slotValidateErrors.employee.length > 0" class="my-error">{{slotValidateErrors.employee}}</div>
                                 </div>
 
                             </div>
@@ -218,7 +218,9 @@
                             <div class="col-md-12">
 
                                 <div>{{slotSelectedCheckboxes}}</div>
-                                <table class="table my-shedule-table text-center overflow-hidden" style="padding: 0">
+                                <div v-show="slotValidateErrors.checkboxes.length > 0" class="my-error">{{slotValidateErrors.checkboxes}}</div>
+                                <table class="table my-shedule-table text-center overflow-hidden"
+                                       :class="{'my-bg-error': slotValidateErrors.checkboxes.length > 0}">
                                     <thead>
                                         <tr>
                                             <template v-for="(thCol,colThInd) in filterValueLists.slotCheckBoxList.ths">
@@ -247,10 +249,13 @@
                                                     <label :for="'chbox-' + tdCol.TIME + '_' + tdCol.DAY">
                                                     <input :data-time="tdCol.TIME" :data-day="tdCol.DAY"
                                                            :id="'chbox-' + tdCol.TIME + '_' + tdCol.DAY"
-                                                           v-model="slotSelectedCheckboxes" type="checkbox" :value="tdCol.TIME + '_' + tdCol.DAY">
+
+                                                           v-model="slotSelectedCheckboxes" type="checkbox" :value="tdCol.DAY + '_' + tdCol.TIME">
                                                     </label>
                                                 </td>
                                             </template>
+
+<!--                                            v-model="slotSelectedCheckboxes" type="checkbox" :value="tdCol.TIME + '_' + tdCol.DAY">-->
                                         </tr>
                                     </tbody>
                                 </table>

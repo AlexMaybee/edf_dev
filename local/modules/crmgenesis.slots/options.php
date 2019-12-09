@@ -4,7 +4,8 @@ use Bitrix\Main\Loader,
     Bitrix\Main\Localization\Loc,
     Bitrix\Main\Config\Option,
     Bitrix\Iblock\ElementTable,
-    Bitrix\Main\GroupTable;
+    Bitrix\Main\GroupTable,
+    \Crmgenesis\Slots\Bitrixfunction;
 
 $moduleId = basename( __DIR__ );
 $moduleLangPrefix = strtoupper( str_replace( ".", "_", $moduleId ) );
@@ -31,6 +32,19 @@ while ($arIblock = $rsIblock->fetch())
 }
 //массив всех списков для селектов
 
+//массив для выбора DEFAULT STATUS 09.12.2019
+$defStatusValList = [];
+$statusListID = Bitrixfunction::getCoptionValue('SLOT_STATUS_LIST');
+if($statusListID > 0){
+    $defStList = \Bitrix\Iblock\ElementTable::getList([
+        'select' => ['ID','NAME'],
+        'filter' => ['IBLOCK_ID' => $statusListID],
+        'order' => ['DATE_CREATE' => 'DESC'],
+    ]);
+    while($ob = $defStList->fetch())
+        $defStatusValList[$ob['ID']] = $ob['NAME'].' ('.$ob['ID'].')';
+}
+
 
 $aTabs = [
     [
@@ -51,6 +65,12 @@ $aTabs = [
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_LIST_FIELD_LABEL' ),
                 '',
                 ['selectbox', $resIblock]
+            ],
+            [
+                'SLOT_DEFAULT_STATUS',// создаст COption('SLOT_DEFAULT_STATUS'), потом можно его брать
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_DEFAULT_VALUE_LABEL' ),
+                '',
+                ['selectbox', $defStatusValList]
             ],
             [
                 'SLOT_SERVISE_LIST', // создаст COption('SLOT_SERVISE_LIST'), потом можно его брать

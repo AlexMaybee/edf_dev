@@ -49,7 +49,7 @@ class crmgenesis_slots extends \CModule{
         global $DB;
         $res = $DB->RunSQLBatch(__DIR__ . "/db/" . strtolower($DB->type) . '/install.sql');
 
-//        self::logData($res);
+        self::logData($res);
 
         return true;
     }

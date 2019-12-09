@@ -33,11 +33,17 @@
 }
 
 /*таблица с чекбоксами*/
+.my-shedule-table{
+    padding: 0;
+}
 .my-shedule-table tbody td, .my-shedule-table tbody th{
     padding: 0!important;
 }
 .my-shedule-table tbody td, .my-shedule-table tbody th {
     border: none;
+}
+.my-bg-error{
+    background-color: #ff000066!important;
 }
 
 /*клик по чекбоксу с днем-временем на всю клетку*/

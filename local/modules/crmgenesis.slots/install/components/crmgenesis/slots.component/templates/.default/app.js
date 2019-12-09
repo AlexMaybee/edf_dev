@@ -35,7 +35,7 @@ let app = new Vue({
             slotFilters: { //объект всех ролей gsp Modal
                 ageFrom: '', //Возраст с
                 ageTo: '', //Возраст до
-                club: '', //клуб в gsp-Modal
+                club: 0, //клуб в gsp-Modal
                 durationMins: '', //длительность в gsp-Modal
                 employee: {
                     id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
@@ -43,12 +43,11 @@ let app = new Vue({
                 },
                 groupName: '', //название группы
                 groupSize: '', //численность группы
-                location: '', //локация в gsp-Modal
+                location: 0, //локация в gsp-Modal
                 periodFrom: moment(new Date).format('YYYY-MM-DD'),
                 periodTo: moment(new Date).format('YYYY-MM-DD'),
-                type: '',//тип (индивид., групп., сплит) в gsp-Modal
-                zone: '', //зона
-
+                type: 0,//тип (индивид., групп., сплит) в gsp-Modal
+                zone: 0 //зона
             },
             // slotClub: '', //клуб в gsp-Modal
             // slotEmployee: {
@@ -243,13 +242,13 @@ let app = new Vue({
         },
 
         //открытие попапа при выборе пустых слотов
-        openWorkDayAddPopup: function (dateFrom,dateTo,slotId) {
+        // openWorkDayAddPopup: function (dateFrom,dateTo,slotId) {
+        openWorkDayAddPopup: function (dateFrom,dateTo) {
             this.workDayStart = dateFrom;
             this.workDayFinish = dateTo;
-            this.seletedSlotId = slotId;
             $('#workDayInCalendar').modal('show');
 
-            console.log('PopUp:',dateFrom,dateTo,slotId,this.seletedSlotId);
+            // console.log('PopUp:',dateFrom,dateTo,this.seletedSlotId);
         },
 
         //создание слотов в календаре (разеляем выбраный день на слоты по 1 часу)
@@ -312,35 +311,21 @@ let app = new Vue({
 
                     //если сохранилось, то закрываем попап
                     if(response.data.result){
+                        this.slotFilters.ageFrom = response.data.result.AGE_FROM;
+                        this.slotFilters.ageTo = response.data.result.AGE_TO;
+                        this.slotFilters.club = response.data.result.CLUB_ID;
+                        this.gspZoneFilterByClub();
+                        this.slotFilters.employee = {
+                            id: response.data.result.USER_ID,
+                            name: response.data.result.USER_NAME,
+                        };
 
-                        /**
-                         slotFilters: { //объект всех ролей gsp Modal
-                ageFrom: '', //Возраст с
-                ageTo: '', //Возраст до
-                club: '', //клуб в gsp-Modal
-                durationMins: '', //длительность в gsp-Modal
-                employee: {
-                    id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
-                    name: '', //сотрудник в gsp-Modal
-                },
-                groupName: '', //название группы
-                groupSize: '', //численность группы
-                location: '', //локация в gsp-Modal
-                periodFrom: moment(new Date).format('YYYY-MM-DD'),
-                periodTo: moment(new Date).format('YYYY-MM-DD'),
-                type: '',//тип (индивид., групп., сплит) в gsp-Modal
-                zone: '', //зона
-
-            },
-                         */
-                    this.slotFilters.ageFrom = response.data.result.AGE_FROM;
-                    this.slotFilters.ageTo = response.data.result.AGE_TO;
-                    this.slotFilters.location = response.data.result.LOCATION_ID;
-                    this.slotFilters.employee = {
-                        id: response.data.result.USER_ID,
-                        name: response.data.result.USER_NAME,
-                    };
-
+                        this.slotFilters.groupName = response.data.result.GROUP_NAME;
+                        this.slotFilters.groupSize = response.data.result.GROUP_SIZE;
+                        this.slotFilters.zone = response.data.result.ZONE_ID;
+                        this.gspLocationFilterByZone();
+                        this.slotFilters.location = response.data.result.LOCATION_ID;
+                        this.slotFilters.type = response.data.result.TYPE_ID;
                     }
                     else console.log('v-ERROR:',response.data.errors)
                 }).catch(err => console.log(err));
@@ -465,10 +450,10 @@ let app = new Vue({
             let zones = this.filterValueLists.slotZonaList,
                 selectedClub = this.slotFilters.club;
 
-            this.slotFilters.zone = '';
-            this.slotFilters.location = '';
+            this.slotFilters.zone = 0;
+            this.slotFilters.location = 0;
 
-            if(selectedClub.length > 0){
+            if(selectedClub > 0){
                 this.filterValueLists.slotSortedZoneList = zones.filter(function (elem) {
                     if(selectedClub==='') return true;
                     else return elem.PROPERTY_307_VALUE.indexOf(selectedClub) > -1;
@@ -486,9 +471,9 @@ let app = new Vue({
             let locations = this.filterValueLists.slotLocationList,
                 selectedZone = this.slotFilters.zone;
 
-            this.slotFilters.location = '';
+            this.slotFilters.location = 0;
 
-            if(selectedZone.length > 0){
+            if(selectedZone > 0){
                 this.filterValueLists.slotSortedLocationList = locations.filter(function (elem) {
                     if(selectedZone==='') return true;
                     else return elem.PROPERTY_308_VALUE.indexOf(selectedZone) > -1;
@@ -524,7 +509,9 @@ let app = new Vue({
             let dateRegExp = /^[\d]{4}-[\d]{2}-[\d]{2}/;
             this.resetValidateErrors(this.slotValidateErrors);
 
-            if(this.slotFilters.type.trim() <= 0 )
+            // console.log('slot ID:',this.seletedSlotId);
+
+            if(this.slotFilters.type <= 0 )
                 this.slotValidateErrors.type = 'Выберите Тип!';
 
             if(!dateRegExp.test(this.slotFilters.periodFrom.trim()))
@@ -533,25 +520,25 @@ let app = new Vue({
             if(!dateRegExp.test(this.slotFilters.periodTo.trim()))
                 this.slotValidateErrors.periodTo = 'Укажите окончание периода!';
 
-            if(this.slotFilters.club.trim() <= 0 )
+            if(this.slotFilters.club <= 0 )
                 this.slotValidateErrors.club = 'Выберите Клуб!';
 
-            if(this.slotFilters.zone.trim() <= 0 )
+            if(this.slotFilters.zone <= 0 )
                 this.slotValidateErrors.zona = 'Выберите Зону!';
 
-            if(this.slotFilters.location.trim() <= 0 )
+            if(this.slotFilters.location <= 0 )
                 this.slotValidateErrors.location = 'Выберите Локацию!';
 
-            if(this.slotFilters.ageFrom.trim() <= 0 )
+            if(this.slotFilters.ageFrom <= 0 )
                 this.slotValidateErrors.ageFrom = 'Укажите начальный возраст!';
 
-            if(this.slotFilters.ageTo.trim() <= 0 )
+            if(this.slotFilters.ageTo <= 0 )
                 this.slotValidateErrors.ageTo = 'Укажите конечный возраст!';
 
-            if(this.slotFilters.groupSize.trim() <= 0 )
+            if(this.slotFilters.groupSize <= 0 )
                 this.slotValidateErrors.groupSize = 'Укажите Численность группы!';
 
-            if(this.slotFilters.durationMins.trim() <= 0 )
+            if(this.slotFilters.durationMins <= 0 )
                 this.slotValidateErrors.durationMins = 'Укажите Длительность в минутах!';
 
             if(this.slotFilters.employee.id <= 0 )
@@ -560,13 +547,19 @@ let app = new Vue({
             if(this.slotFilters.groupName <= 0 )
                 this.slotValidateErrors.groupName = 'Укажите Название группы!';
 
+            if(this.slotSelectedCheckboxes.length <= 0 )
+                this.slotValidateErrors.checkboxes = 'Не выбран ни один чекбокс!';
+            // console.log('chbx',this.slotSelectedCheckboxes.length);
+
 
             if(this.countErrorsInObject(this.slotValidateErrors) == 0) {
                 console.log('Save in DB!!!');
-                if (this.seletedSlotId > 0)
+                if (this.seletedSlotId > 0) //это редактирование текущего элемента
                     this.updateSlot();
+
                 //иначе создание какого-то расписания и кучу слотов для выбранного сотрудника
-                //else
+                else
+                    this.addFilledSlotsBetweenPeriod();
             }
 
             //groupName
@@ -574,23 +567,94 @@ let app = new Vue({
             console.log('Validation Gsp:',this.slotValidateErrors);
         },
 
+
+
+        //создание слотов за определенный период по отмеченным чекбоксам
+        addFilledSlotsBetweenPeriod: function(){
+            console.log('ФИЛЬТРЫ: для создания по чекбоксам',this.slotFilters);
+            console.log('ЧЕКБОКСЫ: для создания по чекбоксам',this.slotSelectedCheckboxes);
+
+            axios.post(this.request_url,
+                {action:'addFilledSlotsBetweenPeriod',
+                    filters: this.slotFilters,
+                    // slotId: this.seletedSlotId,
+                    // workDayStart:this.workDayStart,
+                    // workDayFinish: this.workDayFinish,
+                    checkboxes: this.slotSelectedCheckboxes,
+                }).then(response => {
+
+                console.log('Period Chbxs: ',response.data)
+
+                if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+                else{
+
+                    // $('#gspModal').modal('hide');
+                    // this.resetGspPopupFields();
+                    //
+                    // this.workDayStart = '';
+                    // this.workDayFinish = '';
+                    // this.seletedSlotId = '';
+                }
+
+                //перезапуск функции получения евентов на выбранную неделю
+                // this.getUserSlots();
+
+            }).catch(err => console.log(err));
+
+        },
+
+
+
         //запись выбранных данных в существующем слоте
+        //!!! ДОПИСАТЬ СОХРАНЕНИЕ В ТАБЛ. № 2!!!
         updateSlot: function () {
             axios.post(this.request_url,
                 {action:'updateSlot',
                     filters: this.slotFilters,
                     slotId: this.seletedSlotId,
+                    workDayStart:this.workDayStart,
+                    workDayFinish: this.workDayFinish,
                     // checkboxes: this.slotSelectedCheckboxes,
                 }).then(response => {
 
                 console.log('updateSlot: ',response.data)
 
                 if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+                else{
+
+                    $('#gspModal').modal('hide');
+                    this.resetGspPopupFields();
+
+                    this.workDayStart = '';
+                    this.workDayFinish = '';
+                    this.seletedSlotId = '';
+                }
 
                 //перезапуск функции получения евентов на выбранную неделю
-                // this.getUserSlots();
+                this.getUserSlots();
 
             }).catch(err => console.log(err));
+        },
+
+        //обнуляем данные полей после успешного сохранения
+        resetGspPopupFields: function () {
+            this.slotFilters = { //объект всех ролей gsp Modal
+                ageFrom: '', //Возраст с
+                ageTo: '', //Возраст до
+                club: 0, //клуб в gsp-Modal
+                durationMins: '', //длительность в gsp-Modal
+                employee: {
+                    id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
+                    name: '', //сотрудник в gsp-Modal
+                },
+                groupName: '', //название группы
+                groupSize: '', //численность группы
+                location: 0, //локация в gsp-Modal
+                periodFrom: moment(new Date).format('YYYY-MM-DD'),
+                periodTo: moment(new Date).format('YYYY-MM-DD'),
+                type: 0,//тип (индивид., групп., сплит) в gsp-Modal
+                zone: 0 //зона
+            };
         },
 
     }
