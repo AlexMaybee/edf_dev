@@ -59,11 +59,6 @@ class Bitrixfunction{
         (!$updResult->isSuccess())
             ? $result['errors'] = $updResult->getErrorMessages()
             : $result['result'] = $updResult;
-//        $entity = new SlotTable(false);
-//        $updSlot = $entity->update($id,$updFields);
-//        ($updSlot)
-//            ? $result['result'] = $updSlot
-//            : $result['error'] = $entity->LAST_ERROR;
         return $result;
     }
 

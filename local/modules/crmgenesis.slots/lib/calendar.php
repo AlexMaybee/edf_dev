@@ -105,7 +105,9 @@ class Calendar{
                     'resourceId' => $event['USER_ID'],
                     'color' => $colors['block'],
                     'textColor' => $colors['text'],
-                    'editable' => false, //запрет редактирования записи
+//                    'editable' => false, //запрет редактирования записи
+
+                    'durationEditable' => false, //запрет растягивания, Но модно перемещать элемент
 //                    'h' => $event['H'], //запрет редактирования записи
 //                    'm' => $event['M'], //запрет редактирования записи
                 ];
@@ -210,7 +212,7 @@ class Calendar{
             'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
         ];
         $result = Bitrixfunction::updateSlot($slotId,$updFields);
-        $result['userUPDfields'] = $updFields;
+//        $result['userUPDfields'] = $updFields;
 
         Bitrixfunction::sentAnswer($result);
     }
@@ -372,6 +374,27 @@ class Calendar{
 
         }
 //        $result['test_arr'] = $recordArr;
+
+        Bitrixfunction::sentAnswer($result);
+    }
+
+    /*
+     @method: change date by drag slot in calendar
+     @return: array
+     * */
+    public function changeDateByDragNDrop($slotId,$workDateStart,$workDateFinish){
+        $result = [
+            'errors' => [],
+            'result' => [$slotId,$workDateStart,$workDateFinish],
+        ];
+
+        $updFields = [
+            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
+            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
+            'DATE_MODIFY' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+        ];
+        $result = Bitrixfunction::updateSlot($slotId,$updFields);
 
         Bitrixfunction::sentAnswer($result);
     }

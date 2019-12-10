@@ -506,12 +506,20 @@ let app = new Vue({
 
         //Валидация попапа
         validateGspModal: function () {
-            let dateRegExp = /^[\d]{4}-[\d]{2}-[\d]{2}/;
+            let dateRegExp = /^[\d]{4}-[\d]{2}-[\d]{2}$/,
+                integerReqExp = /^[\d]+$/;
+
+
+            console.log('regexp',integerReqExp);
+
+
             this.resetValidateErrors(this.slotValidateErrors);
 
             // console.log('slot ID:',this.seletedSlotId);
 
-            if(this.slotFilters.type <= 0 )
+            // if(this.slotFilters.type <= 0 )
+            if(!integerReqExp.test(this.slotFilters.type) ||
+                (integerReqExp.test(this.slotFilters.type) && this.slotFilters.type <= 0 ))
                 this.slotValidateErrors.type = 'Выберите Тип!';
 
             if(!dateRegExp.test(this.slotFilters.periodFrom.trim()))
@@ -520,28 +528,44 @@ let app = new Vue({
             if(!dateRegExp.test(this.slotFilters.periodTo.trim()))
                 this.slotValidateErrors.periodTo = 'Укажите окончание периода!';
 
-            if(this.slotFilters.club <= 0 )
+            // if(this.slotFilters.club <= 0 )
+            if(!integerReqExp.test(this.slotFilters.club) ||
+                (integerReqExp.test(this.slotFilters.club) && this.slotFilters.club <= 0 ))
                 this.slotValidateErrors.club = 'Выберите Клуб!';
 
-            if(this.slotFilters.zone <= 0 )
+            // if(this.slotFilters.zone <= 0 )
+            if(!integerReqExp.test(this.slotFilters.zone) ||
+                (integerReqExp.test(this.slotFilters.zone) && this.slotFilters.zone <= 0 ))
                 this.slotValidateErrors.zona = 'Выберите Зону!';
 
-            if(this.slotFilters.location <= 0 )
+            // if(this.slotFilters.location <= 0 )
+            if(!integerReqExp.test(this.slotFilters.location) ||
+                (integerReqExp.test(this.slotFilters.location) && this.slotFilters.location <= 0 ))
                 this.slotValidateErrors.location = 'Выберите Локацию!';
 
-            if(this.slotFilters.ageFrom <= 0 )
+            // if(this.slotFilters.ageFrom <= 0 )
+            if(!integerReqExp.test(this.slotFilters.ageFrom) ||
+                (integerReqExp.test(this.slotFilters.ageFrom) && this.slotFilters.ageFrom <= 0 ))
                 this.slotValidateErrors.ageFrom = 'Укажите начальный возраст!';
 
-            if(this.slotFilters.ageTo <= 0 )
+            // if(this.slotFilters.ageTo <= 0 )
+            if(!integerReqExp.test(this.slotFilters.ageTo) ||
+                (integerReqExp.test(this.slotFilters.ageTo) && this.slotFilters.ageTo <= 0 ))
                 this.slotValidateErrors.ageTo = 'Укажите конечный возраст!';
 
-            if(this.slotFilters.groupSize <= 0 )
+            // if(this.slotFilters.groupSize <= 0 )
+            if(!integerReqExp.test(this.slotFilters.groupSize) ||
+                (integerReqExp.test(this.slotFilters.groupSize) && this.slotFilters.groupSize <= 0 ))
                 this.slotValidateErrors.groupSize = 'Укажите Численность группы!';
 
-            if(this.slotFilters.durationMins <= 0 )
+            // if(this.slotFilters.durationMins <= 0 )
+            if(!integerReqExp.test(this.slotFilters.durationMins) ||
+                (integerReqExp.test(this.slotFilters.durationMins) && this.slotFilters.durationMins <= 0 ))
                 this.slotValidateErrors.durationMins = 'Укажите Длительность в минутах!';
 
-            if(this.slotFilters.employee.id <= 0 )
+            // if(this.slotFilters.employee.id <= 0 )
+            if(!integerReqExp.test(this.slotFilters.employee.id) ||
+                (integerReqExp.test(this.slotFilters.employee.id) && this.slotFilters.employee.id <= 0 ))
                 this.slotValidateErrors.employee = 'Выберите Сотрудника!';
 
             if(this.slotFilters.groupName <= 0 )
@@ -606,7 +630,6 @@ let app = new Vue({
 
 
         //запись выбранных данных в существующем слоте
-        //!!! ДОПИСАТЬ СОХРАНЕНИЕ В ТАБЛ. № 2!!!
         updateSlot: function () {
             axios.post(this.request_url,
                 {action:'updateSlot',
@@ -657,5 +680,42 @@ let app = new Vue({
             };
         },
 
+        changeDateByDragNDrop: function (start,finish,id) {
+            axios.post(this.request_url,
+                {action:'changeDateByDragNDrop',
+                    slotId: id,
+                    workDayStart: start,
+                    workDayFinish: finish,
+                }).then(response => {
+
+                // console.log('changeDateByDragNDrop: ',response.data)
+                if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+                this.getUserSlots();
+            }).catch(err => console.log(err));
+
+        },
+
+        //4 функуции очистки полей от ненужных символов
+        checkAgeFrom: function(){
+            this.slotFilters.ageFrom = this.deleteStringSymbols(this.slotFilters.ageFrom,'float');
+        },
+        checkAgeTo: function(){
+            this.slotFilters.ageTo = this.deleteStringSymbols(this.slotFilters.ageTo,'float');
+        },
+        checkGroupSize: function(){
+            this.slotFilters.groupSize = this.deleteStringSymbols(this.slotFilters.groupSize);
+        },
+        //DEL?
+        checkdurationMins: function(){
+            this.slotFilters.durationMins = this.deleteStringSymbols(this.slotFilters.durationMins);
+        },
+
+
+        deleteStringSymbols: function (model,float=false) {
+            (float == 'float')
+                ? model = model.replace(/[^,.\d]$/g,'').replace(',','.')
+                : model = model.replace(/[^\d]$/g,'');
+            return model;
+        },
     }
-})
+});

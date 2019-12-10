@@ -135,6 +135,7 @@
                                 </div>
                                 <div class="col-8">
                                     <input v-model="slotFilters.ageFrom"
+                                           @keyup="checkAgeFrom"
                                            :class="{'my-error-border': slotValidateErrors.ageFrom.length > 0}"
                                            type="text" class="form-control" id="age-start-from">
                                     <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error">{{slotValidateErrors.ageFrom}}</div>
@@ -148,6 +149,7 @@
                                 </div>
                                 <div class="col-8">
                                     <input v-model="slotFilters.groupSize"
+                                           @keyup="checkGroupSize"
                                            :class="{'my-error-border': slotValidateErrors.groupSize.length > 0}"
                                             type="text" class="form-control" id="group-size">
                                     <div v-show="slotValidateErrors.groupSize.length > 0" class="my-error">{{slotValidateErrors.groupSize}}</div>
@@ -162,6 +164,7 @@
                                 </div>
                                 <div class="col-8">
                                     <input v-model="slotFilters.ageTo"
+                                           @keyup="checkAgeTo"
                                            :class="{'my-error-border': slotValidateErrors.ageTo.length > 0}"
                                            type="text" class="form-control" id="age-start-to">
                                     <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error">{{slotValidateErrors.ageTo}}</div>
@@ -174,6 +177,7 @@
                                 </div>
                                 <div class="col-8">
                                     <input v-model="slotFilters.durationMins"
+                                           @keyup="checkdurationMins"
                                            :class="{'my-error-border': slotValidateErrors.durationMins.length > 0}"
                                             type="text" class="form-control" id="group-duration">
                                     <div v-show="slotValidateErrors.durationMins.length > 0" class="my-error">{{slotValidateErrors.durationMins}}</div>

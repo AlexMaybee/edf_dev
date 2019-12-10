@@ -49,3 +49,7 @@ if($data['action'] == 'getSlotById')
 // #10 Создание слотов + данных во второй таблице по чекбоксам за период из gsp Modal
 if($data['action'] == 'addFilledSlotsBetweenPeriod')
     Crmgenesis\Slots\Calendar::addFilledSlotsBetweenPeriod($data['filters'],$data['checkboxes']);
+
+// #11 Drag слота (смена дат перетаскиванием)
+if($data['action'] == 'changeDateByDragNDrop')
+    Crmgenesis\Slots\Calendar::changeDateByDragNDrop($data['slotId'],$data['workDayStart'],$data['workDayFinish']);

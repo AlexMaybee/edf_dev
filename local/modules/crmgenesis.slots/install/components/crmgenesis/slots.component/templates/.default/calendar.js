@@ -129,6 +129,12 @@ Vue.component('calendar', {
 
             eventDrop: function(event) {
                 var char_two = event.id.charAt(0);
+                // console.log('lol',event);
+                app.changeDateByDragNDrop(
+                    moment(event.start._i).format('YYYY-MM-DDTHH:mm'),
+                    moment(event.end._i).format('YYYY-MM-DDTHH:mm'),
+                    event.id);
+
             },
 
             eventResize: function(event) {
