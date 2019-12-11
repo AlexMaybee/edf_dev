@@ -100,6 +100,43 @@ Vue.component('tr-td-function-component', {
         `<td @click="selectTimeAllCols()">{{time}}</td>`
 });
 
+/*@component: 4. info Popup
+*/
+Vue.component('info-popup-component', {
+    props: {
+        text: '',
+        buttonSuccessText: '',
+        buttonRejectText: '',
+        modalTitle: '',
+        successfunctn: '',
+        rejectfunctn: '',
+        popupClass: '',
+    },
+    template:
+        `<div class="modal fade" id="infoModalCenter" tabindex="-1" role="dialog" aria-labelledby="infoModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content" 
+                 :class="popupClass">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="infoModalCenterTitle">{{modalTitle}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                       <h4>{{text}}</h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" @click="rejectfunctn" class="btn btn-secondary" data-dismiss="modal">{{buttonRejectText}}</button>
+                        <button type="button" @click="successfunctn" class="btn btn-primary">{{buttonSuccessText}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>`
+});
+
+
+
 // Vue.component('select-user-from-list-component', {
 //     data:  function(){
 //         return  {

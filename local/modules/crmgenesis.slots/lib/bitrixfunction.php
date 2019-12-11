@@ -141,10 +141,69 @@ class Bitrixfunction{
 
 
     //получение № дня по дате
-    public function getDayWeek($date_custom)
-    {
-        $day_week = date('N', strtotime($date_custom));
-        return $day_week;
+    public function getDayWeek($date_custom){
+        return  $day_week = date('N', strtotime($date_custom));
+//        return $day_week;
+    }
+
+    //получение данных польз. групп
+    public function getListGroups($filter,$select,$order=[]){
+        return $result = \Bitrix\Main\GroupTable::getList([
+            'select'  => $select,
+            'filter'  => $filter, //array('!ID'=>'1', 'ACTIVE' => 'Y'),
+            'order'  => $order,
+        ])->fetchAll();
+    }
+
+    //получение групп пользователя
+    public function getUserGroups($filter,$select,$order=[]){
+        return $result = \Bitrix\Main\UserGroupTable::getList([
+            'select'  => $select,
+            'filter'  => $filter, //array('!ID'=>'1', 'ACTIVE' => 'Y'),
+            'order'  => $order,
+        ])->fetchAll();
+    }
+
+
+    /*функции для файла option.php*/
+
+    //получение массива списков для файла option.php
+    public function getListsArrForOptionsPhp(){
+        $result = [];
+        $rsIblock = \Bitrix\Iblock\IblockTable::getList(['select' => ['ID', 'NAME']]);
+        while($arIblock = $rsIblock->fetch())
+            $result[$arIblock['ID']] = $arIblock['NAME'].' ('.$arIblock['ID'].')';
+        return $result;
+    }
+
+    //получение элементов выбранного списка для поля "Статус по умолчанию"
+    public function getDefaultStatusFromListForOptionPhp(){
+        $result = [];
+        $statusListID = self::getCoptionValue('SLOT_STATUS_LIST');
+        if($statusListID > 0){
+            $defStList = \Bitrix\Iblock\ElementTable::getList([
+                'select' => ['ID','NAME'],
+                'filter' => ['IBLOCK_ID' => $statusListID],
+                'order' => ['DATE_CREATE' => 'DESC'],
+            ]);
+            while($ob = $defStList->fetch())
+                $defStatusValList[$ob['ID']] = $ob['NAME'].' ('.$ob['ID'].')';
+            $defList = self::getListElements(['IBLOCK_ID' => $statusListID],['ID','NAME'],['DATE_CREATE' => 'DESC']);
+            if($defList)
+                foreach ($defList as $list)
+                    $result[$list['ID']] = $list['NAME'].' ('.$list['ID'].')';
+        }
+        return $result;
+    }
+
+    //получение массива польз. групп
+    public function getGroupsArrFroOprionPhp(){
+        $result = [];
+        $groupArr = self::getListGroups(['!ID'=>'1', 'ACTIVE' => 'Y'],['*'],['ID' => 'ASC']);
+        if($groupArr)
+            foreach ($groupArr as $group)
+                $result[$group['ID']] = $group['NAME'].' ('.$group['ID'].')';
+        return $result;
     }
 
 }

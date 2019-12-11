@@ -53,7 +53,8 @@ Vue.component('calendar', {
             header: {
                 left: 'today prev,next',
                 center: 'title',
-                right: 'agendaWeek'
+                right: ''
+                // right: 'agendaWeek'
             },
             customButtons: {
                 promptResource: {

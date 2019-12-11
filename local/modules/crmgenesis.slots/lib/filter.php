@@ -7,6 +7,8 @@ use \Crmgenesis\Slots\Bitrixfunction,
 
 class Filter{
 
+    const HOLE_ADMINS_COPTION_TEXT = 'HOLE_ADMINISTRATOR_GROUP';
+
     /*@method: получение ID и роли текущего пользователя + берем lang-строки для счетчиков
      * @return: array*/
     public function getUserRoleAndId(){
@@ -21,8 +23,31 @@ class Filter{
             ],
         ];
 
-        $result['seletedUserId'] = Bitrixfunction::returnCurUserId();
-        $result['isAdmin'] = Bitrixfunction::checkUserIfAdmin();
+        //получаем ID группы админов залов, т.к. они тоже могут редактировать чужие раписания
+        $userGroupsIds = [];
+        $holeAdminsGroupId = Bitrixfunction::getCoptionValue(self::HOLE_ADMINS_COPTION_TEXT);
+        $curUserId = Bitrixfunction::returnCurUserId();
+        if($holeAdminsGroupId > 0){
+            $usersGroup = Bitrixfunction::getUserGroups(
+                ['USER_ID'=>$GLOBALS["USER"]->GetID(),'GROUP.ACTIVE'=>'Y'],
+                ['GROUP_ID','GROUP_NAME'=>'GROUP.NAME'],
+                ['GROUP.ID'=>'DESC']
+                );
+            if($usersGroup)
+                foreach ($usersGroup as $group)
+                    $userGroupsIds[] = $group['GROUP_ID'];
+        }
+
+        if($userGroupsIds && $holeAdminsGroupId){
+            if(in_array($holeAdminsGroupId,$userGroupsIds))
+                $result['isAdmin'] = $holeAdminsGroupId;
+        }
+        else
+            $result['isAdmin'] = Bitrixfunction::checkUserIfAdmin();
+
+        $result['seletedUserId'] = $curUserId;
+
+        $result['hole_admins_group'] = $userGroupsIds;
 
         Bitrixfunction::sentAnswer($result);
     }

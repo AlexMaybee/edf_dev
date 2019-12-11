@@ -178,6 +178,7 @@
                                 <div class="col-8">
                                     <input v-model="slotFilters.durationMins"
                                            @keyup="checkdurationMins"
+                                           disabled
                                            :class="{'my-error-border': slotValidateErrors.durationMins.length > 0}"
                                             type="text" class="form-control" id="group-duration">
                                     <div v-show="slotValidateErrors.durationMins.length > 0" class="my-error">{{slotValidateErrors.durationMins}}</div>
@@ -188,7 +189,7 @@
                         <div class="row">
                             <div class="form-group col row">
                                 <div class="col-4 text-right">
-                                    <label for="employee">Сотрудник</label>
+                                    <label for="employee">Тренер</label>
                                 </div>
                                 <div class="col-8 position-relative">
                                     <input @keyup="gspUserFilter" type="text" class="form-control" id="employee"

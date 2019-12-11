@@ -99,7 +99,8 @@ class Calendar{
                 $colors = self::selectActivityColor($event['DATE_FROM']);
                 $result['result'][] = [
                     'id' => $event['ID'],
-                    'title' => 'Встреча #' . $event['ID'],
+//                    'title' => 'Встреча #' . $event['ID'],
+                    'title' => Loc::getMessage('CRM_GENESIS_CALENDAR_SLOT_TEXT_EMPTY'),
                     'start' => date('Y-m-d H:i:s', strtotime($event['DATE_FROM'])),
                     'end' => date('Y-m-d H:i:s', strtotime($event['DATE_TO'])),
                     'resourceId' => $event['USER_ID'],
@@ -406,23 +407,29 @@ class Calendar{
         $diffRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
             date ('d.m.Y'), date('d.m.Y',strtotime($dateStart)),'%R%a');
         switch (true){
-            case ($diffRes < 0): //прошлый день
-                $color = [
-                    'block' => '#000',
-                    'text' => '#fff'
-                ];
-                break;
-            case ($diffRes > 0): //будущий день
-                $color = [
-                    'block' => '#007bff',
-                    'text' => '#fff'
-                ];
-                break;
+//            case ($diffRes < 0): //прошлый день
+//                $color = [
+//                    'block' => '#000',
+//                    'text' => '#fff'
+//                ];
+//                break;
+//            case ($diffRes > 0): //будущий день
+//                $color = [
+//                    'block' => '#007bff',
+//                    'text' => '#fff'
+//                ];
+//                break;
+//            default:   //текущий день
+//                $color = [
+//                    'block' => '#d00000',
+//                    'text' => '#fff'
+//                    ];
+//                break;
             default:   //текущий день
                 $color = [
-                    'block' => '#d00000',
-                    'text' => '#fff'
-                    ];
+                    'block' => '#c6cdd3',
+                    'text' => '#535c69'
+                ];
                 break;
         }
         return $color;

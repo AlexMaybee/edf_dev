@@ -20,6 +20,15 @@ let app = new Vue({
             },
             firstWeekDay: '',
             isAdmin: false,
+            info: { //используем для компонента-всплывашки-предупреждашки
+                buttonSuccessText: '',
+                buttonRejectText: '',
+                modalTitle: '',
+                popupClass: '',
+                rejectFunction: '',
+                successFunction: '',
+                text: '',
+            },
             lang: {
                 weekHourText: '',
                 monthHourText: '',
@@ -36,12 +45,16 @@ let app = new Vue({
                 ageFrom: '', //Возраст с
                 ageTo: '', //Возраст до
                 club: 0, //клуб в gsp-Modal
-                durationMins: '', //длительность в gsp-Modal
+                durationMins: 60, //длительность в gsp-Modal
                 employee: {
                     id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
                     name: '', //сотрудник в gsp-Modal
                 },
                 groupName: '', //название группы
+                group: {
+                    name: '', //name
+                    id: '', //id
+                },
                 groupSize: '', //численность группы
                 location: 0, //локация в gsp-Modal
                 periodFrom: moment(new Date).format('YYYY-MM-DD'),
@@ -143,7 +156,7 @@ let app = new Vue({
         getUserRoleAndId: function(){
             axios.post(this.request_url,{action:'getUserRoleAndId'}).then(response => {
 
-                // console.log('User Data Result:',response.data);
+                console.log('User Data Result:',response.data);
 
                 if(response.data.seletedUserId != false) {
                     this.seletedUserId = response.data.seletedUserId;
@@ -360,29 +373,6 @@ let app = new Vue({
                     this.workDayStart = '';
                     this.workDayFinish = '';
                     this.seletedSlotId = '';
-                }).catch(err => console.log(err));
-            }
-        },
-
-        //копирование слотов с предыдущей недели
-        copyPreviousWeekSlots: function () {
-            if(this.seletedUserId) {
-                axios.post(this.request_url,
-                    {action:'copyPreviousWeekSlots',
-                        filters: {
-                            'firstWeekDay': this.firstWeekDay,
-                            'lastWeekDay': moment(this.firstWeekDay).day(+7).format('YYYY-MM-DD'),
-                            'seletedUserId': this.seletedUserId,
-                        },
-                    }).then(response => {
-
-                    // console.log('copyPreviousWeekSlots: ',response.data)
-
-                    if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
-
-                    //перезапуск функции получения евентов на выбранную неделю
-                    this.getUserSlots();
-
                 }).catch(err => console.log(err));
             }
         },
@@ -612,7 +602,7 @@ let app = new Vue({
                 if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
                 else{
 
-                    // $('#gspModal').modal('hide');
+                    $('#gspModal').modal('hide');
                     // this.resetGspPopupFields();
                     //
                     // this.workDayStart = '';
@@ -621,7 +611,7 @@ let app = new Vue({
                 }
 
                 //перезапуск функции получения евентов на выбранную неделю
-                // this.getUserSlots();
+                this.getUserSlots();
 
             }).catch(err => console.log(err));
 
@@ -697,10 +687,10 @@ let app = new Vue({
 
         //4 функуции очистки полей от ненужных символов
         checkAgeFrom: function(){
-            this.slotFilters.ageFrom = this.deleteStringSymbols(this.slotFilters.ageFrom,'float');
+            this.slotFilters.ageFrom = this.deleteStringSymbols(this.slotFilters.ageFrom);
         },
         checkAgeTo: function(){
-            this.slotFilters.ageTo = this.deleteStringSymbols(this.slotFilters.ageTo,'float');
+            this.slotFilters.ageTo = this.deleteStringSymbols(this.slotFilters.ageTo);
         },
         checkGroupSize: function(){
             this.slotFilters.groupSize = this.deleteStringSymbols(this.slotFilters.groupSize);
@@ -711,11 +701,58 @@ let app = new Vue({
         },
 
 
-        deleteStringSymbols: function (model,float=false) {
-            (float == 'float')
-                ? model = model.replace(/[^,.\d]$/g,'').replace(',','.')
-                : model = model.replace(/[^\d]$/g,'');
-            return model;
+        deleteStringSymbols: function (model) {
+            // (float == 'float')
+            //     ? model = model.replace(/[^,.\d]$/g,'').replace(',','.')
+            //     : model = model.replace(/[^\d]$/g,'');
+            // return model;
+            return model = model.replace(/[^\d]$/g,'');
         },
+
+        //наджатие на "копировать предыд. неделю" + показываем попап
+        clickOnCopyPrevWeek: function () {
+            this.info = {
+                // buttonSuccessText: "Копировать",
+                buttonSuccessText: "Да пох!",
+                buttonRejectText: "Отмена",
+                modalTitle: "Вы уверены?",
+                popupClass: 'alert alert-warning',
+                rejectFunction: this.clearInfoParams,
+                successFunction: this.copyPreviousWeekSlots,
+                text: "Данное дейтсвие может привести к задвоению слотов. Выполнить операцию?",
+            };
+console.log(this.info);
+
+            $('#infoModalCenter').modal('show');
+        },
+
+        //копирование слотов с предыдущей недели
+        copyPreviousWeekSlots: function () {
+            if(this.seletedUserId) {
+                axios.post(this.request_url,
+                    {action:'copyPreviousWeekSlots',
+                        filters: {
+                            'firstWeekDay': this.firstWeekDay,
+                            'lastWeekDay': moment(this.firstWeekDay).day(+7).format('YYYY-MM-DD'),
+                            'seletedUserId': this.seletedUserId,
+                        },
+                    }).then(response => {
+
+                    // console.log('copyPreviousWeekSlots: ',response.data)
+
+                    if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+
+                    //перезапуск функции получения евентов на выбранную неделю
+                    this.getUserSlots();
+
+                }).catch(err => console.log(err));
+            }
+        },
+
+        //очистка параметров info, применять всегда при отмене!!!
+        clearInfoParams: function () {
+            this.resetValidateErrors(this.info);
+        },
+
     }
 });

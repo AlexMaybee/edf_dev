@@ -30,47 +30,60 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
 
 ?>
 
-<h1 class="test-h1"><?=Loc::getMessage('CRM_GENESIS_SLOTS_MAIN_COMPONENT_TEST_TEXT')?><br><br></h1>
+<!--<h1 class="test-h1"><?/*=Loc::getMessage('CRM_GENESIS_SLOTS_MAIN_COMPONENT_TEST_TEXT')*/?><br><br></h1>-->
 
 
 <div id="slot_calendar">
 
-    <div class="filters" v-if="isAdmin">
-        <select class="custom-select col-md-3 mb-3" v-model="seletedUserId" @change="getUserSlots">
-            <option v-for="user in filterValueLists.users" :value="user.ID">{{user.NAME}}</option>
-        </select>
-    </div>
-    <div class="mb-3">
+    <div class="filter-indicators mb-3">
 
-        <div>
-            <div class="week-work-hours-outer">
+        <div class="filters col-4 text-center p-2" v-if="isAdmin">
+            <select class="custom-select col-12" v-model="seletedUserId" @change="getUserSlots">
+                <option v-for="user in filterValueLists.users" :value="user.ID">{{user.NAME}}</option>
+            </select>
+        </div>
 
-                <animate-time-counters
-                    :hours="workHoursThisWeek.hours"
-                    :my-class="workHoursThisWeek.class"
-                    :text="lang.weekHourText"
-                    :measure="lang.measureText">
-                </animate-time-counters>
 
-                <animate-time-counters
-                    :hours="workHoursThisMonth.hours"
-                    :my-class="workHoursThisMonth.class"
-                    :text="lang.monthHourText"
-                    :measure="lang.measureText">
-                </animate-time-counters>
-
+        <div class="col-4 p-2">
+            <div class="copy-prev-week-btn col-12 text-center">
+<!--                @click="copyPreviousWeekSlots"  --- clickOnCopyPrevWeek -->
+                <button type="button" class="btn btn-secondary"
+                        @click="clickOnCopyPrevWeek"
+                        :disabled="!prevWeekSlotsNum">Копировать предыдущую неделю</button>
             </div>
         </div>
 
-    </div>
 
-    <div class="copy-prev-week-btn  mb-3">
-        <button type="button" :disabled="!prevWeekSlotsNum" @click="copyPreviousWeekSlots" class="btn btn-secondary">Копировать предыдущую неделю</button>
+        <div class="col-4">
+            <div>
+                <div class="week-work-hours-outer text-right">
+
+                    <animate-time-counters
+                            :hours="workHoursThisWeek.hours"
+                            :my-class="workHoursThisWeek.class"
+                            :text="lang.weekHourText"
+                            :measure="lang.measureText">
+                    </animate-time-counters>
+
+                    <animate-time-counters
+                            :hours="workHoursThisMonth.hours"
+                            :my-class="workHoursThisMonth.class"
+                            :text="lang.monthHourText"
+                            :measure="lang.measureText">
+                    </animate-time-counters>
+
+                </div>
+            </div>
+        </div>
     </div>
+    
+
 
     <div class="test-btn  mb-3">
         <button type="button" @click="openGspModal" class="btn btn-danger">Popup добавления инфы в слот</button>
     </div>
+
+
 
     <calendar :events="events" :resources="resources" :editable="true" :settings="settings"></calendar>
 
@@ -82,6 +95,21 @@ Asset::getInstance()->addCss("//use.fontawesome.com/releases/v5.0.6/css/all.css"
     <!-- Modal TEST edit Slots id deal -->
     <?php include_once 'includes/gspModal.php'?>
     <!-- Modal TEST edit Slots id deal -->
+
+
+    <!--info popup component-->
+    <!--:text = 'Данное дейтсвие может привести к задвоению слотов. Выполнить операцию?'
+    :button-text = 'Копировать предыдущую неделю'-->
+
+    <info-popup-component
+            :button-success-text = "info.buttonSuccessText"
+            :button-reject-text = "info.buttonRejectText"
+            :modal-title = "info.modalTitle"
+            :popup-class = "info.popupClass"
+            :rejectfunctn = "info.rejectFunction"
+            :successfunctn = "info.successFunction"
+            :text="info.text"
+    ></info-popup-component>
 
 </div>
 

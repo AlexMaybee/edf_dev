@@ -22,38 +22,43 @@ Loader ::includeModule( $moduleId );
 
 //массив всех списков для селектов
 $resIblock = [];
-$resIblock[] = Loc::getMessage('USERPROPERTIES_NO_SELECT');
-$rsIblock = \Bitrix\Iblock\IblockTable::getList(array(
-    'select' =>  array('ID', 'NAME'),
-));
-while ($arIblock = $rsIblock->fetch())
-{
-    $resIblock[$arIblock['ID']] = $arIblock['NAME'].' ('.$arIblock['ID'].')';
-}
+//$resIblock[] = Loc::getMessage('CRM_GENESIS_NOT_SELECTED_FIELD_LABEL');
+//$rsIblock = \Bitrix\Iblock\IblockTable::getList(array(
+//    'select' =>  array('ID', 'NAME'),
+//));
+//while ($arIblock = $rsIblock->fetch())
+//{
+//    $resIblock[$arIblock['ID']] = $arIblock['NAME'].' ('.$arIblock['ID'].')';
+//}
+$resIblock = Bitrixfunction::getListsArrForOptionsPhp();
 //массив всех списков для селектов
 
 //массив для выбора DEFAULT STATUS 09.12.2019
 $defStatusValList = [];
-$statusListID = Bitrixfunction::getCoptionValue('SLOT_STATUS_LIST');
-if($statusListID > 0){
-    $defStList = \Bitrix\Iblock\ElementTable::getList([
-        'select' => ['ID','NAME'],
-        'filter' => ['IBLOCK_ID' => $statusListID],
-        'order' => ['DATE_CREATE' => 'DESC'],
-    ]);
-    while($ob = $defStList->fetch())
-        $defStatusValList[$ob['ID']] = $ob['NAME'].' ('.$ob['ID'].')';
-}
+//$statusListID = Bitrixfunction::getCoptionValue('SLOT_STATUS_LIST');
+//if($statusListID > 0){
+//    $defStList = \Bitrix\Iblock\ElementTable::getList([
+//        'select' => ['ID','NAME'],
+//        'filter' => ['IBLOCK_ID' => $statusListID],
+//        'order' => ['DATE_CREATE' => 'DESC'],
+//    ]);
+//    while($ob = $defStList->fetch())
+//        $defStatusValList[$ob['ID']] = $ob['NAME'].' ('.$ob['ID'].')';
+//}
+$defStatusValList = Bitrixfunction::getDefaultStatusFromListForOptionPhp();
+
+//массив пользовательских групп
+$userGroupsArr = Bitrixfunction::getGroupsArrFroOprionPhp();
 
 
 $aTabs = [
     [
         'DIV' => 'crmgenesis',
-        'TAB' => Loc::getMessage('CRM_GENESIS_SLOTS_MAIN_TAB_INFO'),
-        'TITLE' => Loc::getMessage("CRM_GENESIS_SLOTS_MAIN_TAB_INFO_DESCRIPRION"),
+        'TAB' => Loc::getMessage('CRM_GENESIS_SLOTS_TAB1_INFO'),
+        'TITLE' => Loc::getMessage("CRM_GENESIS_SLOTS_TAB1_INFO_DESCRIPRION"),
         'OPTIONS' => [
 
-            Loc::getMessage('CRM_GENESIS_SLOTS_MAIN_TAB_INNER_TITLE'),
+            Loc::getMessage('CRM_GENESIS_SLOTS_TAB1_INNER_TITLE'),
             [
                 'SLOT_TYPE_LIST',
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_TYPE_LIST_FIELD_LABEL' ),
@@ -65,12 +70,6 @@ $aTabs = [
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_LIST_FIELD_LABEL' ),
                 '',
                 ['selectbox', $resIblock]
-            ],
-            [
-                'SLOT_DEFAULT_STATUS',// создаст COption('SLOT_DEFAULT_STATUS'), потом можно его брать
-                Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_DEFAULT_VALUE_LABEL' ),
-                '',
-                ['selectbox', $defStatusValList]
             ],
             [
                 'SLOT_SERVISE_LIST', // создаст COption('SLOT_SERVISE_LIST'), потом можно его брать
@@ -97,7 +96,36 @@ $aTabs = [
                 ['selectbox', $resIblock]
             ],
 
+
         ]
+    ],
+    [
+        'DIV' => 'crmgenesis1',
+        'TAB' => Loc::getMessage('CRM_GENESIS_SLOTS_TAB2_INFO'),
+        'TITLE' => Loc::getMessage("CRM_GENESIS_SLOTS_TAB2_INFO_DESCRIPRION"),
+        'OPTIONS' => [
+            Loc::getMessage('CRM_GENESIS_SLOTS_TAB3_INNER_TITLE'),
+            [
+                'SLOT_DEFAULT_STATUS',// создаст COption('SLOT_DEFAULT_STATUS'), потом можно его брать
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_DEFAULT_VALUE_LABEL' ),
+                '',
+                ['selectbox', $defStatusValList]
+            ],
+        ],
+    ],
+    [
+        'DIV' => 'crmgenesis2',
+        'TAB' => Loc::getMessage('CRM_GENESIS_SLOTS_TAB3_INFO'),
+        'TITLE' => Loc::getMessage("CRM_GENESIS_SLOTS_TAB3_INFO_DESCRIPRION"),
+        'OPTIONS' => [
+            Loc::getMessage('CRM_GENESIS_SLOTS_TAB3_INNER_TITLE'),
+            [
+                'HOLE_ADMINISTRATOR_GROUP',
+                Loc::getMessage( 'CRM_GENESIS_HOLE_ADMINISTRATOR_GROUP_FIELD_LABEL' ),
+                '',
+                ['selectbox', $userGroupsArr]
+            ],
+        ],
     ],
 ];
 
