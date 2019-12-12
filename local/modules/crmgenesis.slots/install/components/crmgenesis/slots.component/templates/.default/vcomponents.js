@@ -32,7 +32,7 @@ Vue.component('animate-time-counters',{
                     return self.hourStart -= 0.5;
                 }
                 else clearInterval(id);
-            },50)
+            },1)
         },
     },
     mounted: function () {

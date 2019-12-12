@@ -95,7 +95,12 @@ $aTabs = [
                 '',
                 ['selectbox', $resIblock]
             ],
-
+            [
+                'SLOT_TRAINING_GROUP_LIST',
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_TRAINING_GROUP_LIST_FIELD_LABEL' ),
+                '',
+                ['selectbox', $resIblock]
+            ],
 
         ]
     ],

@@ -13,7 +13,7 @@
                     <form id="addInfoToSlot" onsubmit="return false" method="POST">
 
                         <div class="row" v-if="workDayStart && workDayFinish">
-                            <div class="form-group col row">
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
                                     <label for="group-start-from">Начало</label>
                                 </div>
@@ -21,7 +21,7 @@
                                     <input v-model="workDayStart" type="datetime-local" class="form-control" id="group-start-from" disabled>
                                 </div>
                             </div>
-                            <div class="form-group col row">
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
                                     <label for="group-start-to">Окончание</label>
                                 </div>
@@ -32,7 +32,41 @@
                         </div>
 
                         <div class="row">
-                            <div class="form-group col row">
+                            <div class="form-group col row align-items-center">
+                                <div class="col-4 text-right">
+                                    <label for="employee">Тренер</label>
+                                </div>
+                                <div class="col-8 position-relative">
+                                    <input @keyup="gspUserFilter" type="text" class="form-control" id="employee"
+                                           :class="{'my-error-border': slotValidateErrors.employee.length > 0}"
+                                           v-model="slotFilters.employee.name" autofocus disabled>
+                                    <div class="position-absolute col-11 slot-employee-absolute pt-3 mt-1 rounded"
+                                         v-show="filterValueLists.slotSortedUserList.length > 0">
+                                        <ul class="px-0">
+                                            <li @click="selectCurrentUserFromList(user)"
+                                                v-for="user in filterValueLists.slotSortedUserList">{{user.NAME}}</li>
+                                        </ul>
+                                    </div>
+                                    <div v-show="slotValidateErrors.employee.length > 0" class="my-error">{{slotValidateErrors.employee}}</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col row align-items-center">
+                                <div class="col-4 text-right">
+                                    <label for="group-size">Численность группы</label>
+                                </div>
+                                <div class="col-8">
+                                    <input v-model="slotFilters.groupSize"
+                                           @keyup="checkGroupSize"
+                                           :class="{'my-error-border': slotValidateErrors.groupSize.length > 0}"
+                                           type="text" class="form-control" id="group-size">
+                                    <div v-show="slotValidateErrors.groupSize.length > 0" class="my-error">{{slotValidateErrors.groupSize}}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
                                     <label for="training-type">Тип</label>
                                 </div>
@@ -47,7 +81,23 @@
                                 </div>
                             </div>
 
-                            <div class="form-group col row">
+                            <div class="form-group col row align-items-center">
+                                <div class="col-4 text-right">
+                                    <label for="group-duration">Длительность, мин</label>
+                                </div>
+                                <div class="col-8">
+                                    <input v-model="slotFilters.durationMins"
+                                           @keyup="checkdurationMins"
+                                           disabled
+                                           :class="{'my-error-border': slotValidateErrors.durationMins.length > 0}"
+                                           type="text" class="form-control" id="group-duration">
+                                    <div v-show="slotValidateErrors.durationMins.length > 0" class="my-error">{{slotValidateErrors.durationMins}}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
                                     <label for="group-title">Клуб</label>
                                 </div>
@@ -61,23 +111,43 @@
                                     <div v-show="slotValidateErrors.club.length > 0" class="my-error">{{slotValidateErrors.club}}</div>
                                 </div>
                             </div>
+
+                            <div class="form-group col row align-items-center">
+
+
+                                    <div class="col-3 text-right">
+                                        <label for="age-start-from">Возраст с</label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input v-model="slotFilters.ageFrom"
+                                               @keyup="checkAgeFrom"
+                                               :class="{'my-error-border': slotValidateErrors.ageFrom.length > 0}"
+                                               type="text" class="form-control" id="age-start-from">
+
+                                    </div>
+
+                                    <div class="col-1 text-right">
+                                        <label for="age-start-to">до</label>
+                                    </div>
+                                    <div class="col-4">
+                                        <input v-model="slotFilters.ageTo"
+                                               @keyup="checkAgeTo"
+                                               :class="{'my-error-border': slotValidateErrors.ageTo.length > 0}"
+                                               type="text" class="form-control" id="age-start-to">
+
+                                    </div>
+
+                                <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error col-12">{{slotValidateErrors.ageFrom}}</div>
+                                <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error col-12">{{slotValidateErrors.ageTo}}</div>
+
+
+                            </div>
+
+
                         </div>
 
                         <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="group-start-from">Период с</label>
-                                </div>
-                                <div class="col-8">
-                                    <input v-model="slotFilters.periodFrom"
-                                           :disabled="seletedSlotId"
-                                           :class="{'my-error-border': slotValidateErrors.periodFrom.length > 0}"
-                                           type="date" class="form-control" id="group-start-from">
-                                    <div v-show="slotValidateErrors.periodFrom.length > 0" class="my-error">{{slotValidateErrors.periodFrom}}</div>
-                                </div>
-                            </div>
-
-                            <div class="form-group col row">
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
                                     <label for="zone">Зона {{filterValueLists.slotSortedZoneList.length}}</label>
                                 </div>
@@ -93,14 +163,23 @@
                                     <div v-show="slotValidateErrors.zona.length > 0" class="my-error">{{slotValidateErrors.zona}}</div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
+                            <div class="form-group col row align-items-center">
+                                <div class="col-3 text-right">
+                                    <label for="group-start-from">Период с</label>
+                                </div>
+                                <div class="col-4">
+                                    <input v-model="slotFilters.periodFrom"
+                                           :disabled="seletedSlotId"
+                                           :class="{'my-error-border': slotValidateErrors.periodFrom.length > 0}"
+                                           type="date" class="form-control" id="group-start-from">
+                                    <div v-show="slotValidateErrors.periodFrom.length > 0" class="my-error">{{slotValidateErrors.periodFrom}}</div>
+                                </div>
+
+                                <div class="col-1 text-right">
                                     <label for="group-start-to">по</label>
                                 </div>
-                                <div class="col-8">
+                                <div class="col-4">
                                     <input v-model="slotFilters.periodTo"
                                            :disabled="seletedSlotId"
                                            :class="{'my-error-border': slotValidateErrors.periodTo.length > 0}"
@@ -108,13 +187,16 @@
                                     <div v-show="slotValidateErrors.periodTo.length > 0" class="my-error">{{slotValidateErrors.periodTo}}</div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="form-group col row">
+                        <div class="row">
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
                                     <label for="location">Локация {{filterValueLists.slotSortedLocationList.length}}</label>
                                 </div>
                                 <div class="col-8">
                                     <select v-model="slotFilters.location"
+                                            @change="gspGroupFilterByLocation"
                                             :disabled="(filterValueLists.slotSortedLocationList.length > 0 && filterValueLists.slotSortedZoneList.length > 0) ? false : true"
                                             :class="{'my-error-border': slotValidateErrors.location.length > 0}"
                                             class="form-control" id="location">
@@ -126,87 +208,91 @@
                                     <div v-show="slotValidateErrors.location.length > 0" class="my-error">{{slotValidateErrors.location}}</div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="form-group col row">
+<!--                            <div class="form-group col row align-items-center">-->
+<!--                                <div class="col-4 text-right">-->
+<!--                                    <label for="contacts">Клиенты</label>-->
+<!--                                </div>-->
+<!--                                <div class="col-8 position-relative">-->
+<!--                                    <input @keyup="getContactsToFilter" type="text" class="form-control" id="contacts"-->
+<!--                                           :class="{'my-error-border': slotValidateErrors.contacts.length > 0}"-->
+<!--                                           v-model="slotFilters.currentContact.name" autofocus>-->
+<!---->
+<!--                                    {{slotFilters.contacts}}-->
+<!---->
+<!--                                    <div class="position-absolute col-11 slot-employee-absolute pt-3 mt-1 rounded"-->
+<!--                                         v-show="filterValueLists.slotRequestedContacts.length > 0">-->
+<!--                                        <ul class="px-0">-->
+<!--                                            <li @click="selectCurrentContactFromList(contact)"-->
+<!--                                                v-for="contact in filterValueLists.slotRequestedContacts">{{contact.NAME}}</li>-->
+<!--                                        </ul>-->
+<!--                                    </div>-->
+<!---->
+<!---->
+<!--                                    <div v-show="slotValidateErrors.contacts.length > 0" class="my-error">{{slotValidateErrors.contacts}}</div>-->
+<!--                                </div>-->
+<!--                                <div class="col-8" v-if="slotFilters.contacts.length > 0">-->
+<!--                                    <span v-for="contact in slotFilters.contacts">{{contact.NAME}}</span>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+
+                            <div class="form-group col row align-items-center">
                                 <div class="col-4 text-right">
-                                    <label for="age-start-from">Возраст с</label>
-                                </div>
-                                <div class="col-8">
-                                    <input v-model="slotFilters.ageFrom"
-                                           @keyup="checkAgeFrom"
-                                           :class="{'my-error-border': slotValidateErrors.ageFrom.length > 0}"
-                                           type="text" class="form-control" id="age-start-from">
-                                    <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error">{{slotValidateErrors.ageFrom}}</div>
-                                </div>
-
-                            </div>
-
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="group-size">Численность группы</label>
-                                </div>
-                                <div class="col-8">
-                                    <input v-model="slotFilters.groupSize"
-                                           @keyup="checkGroupSize"
-                                           :class="{'my-error-border': slotValidateErrors.groupSize.length > 0}"
-                                            type="text" class="form-control" id="group-size">
-                                    <div v-show="slotValidateErrors.groupSize.length > 0" class="my-error">{{slotValidateErrors.groupSize}}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="age-start-to">до</label>
-                                </div>
-                                <div class="col-8">
-                                    <input v-model="slotFilters.ageTo"
-                                           @keyup="checkAgeTo"
-                                           :class="{'my-error-border': slotValidateErrors.ageTo.length > 0}"
-                                           type="text" class="form-control" id="age-start-to">
-                                    <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error">{{slotValidateErrors.ageTo}}</div>
-                                </div>
-                            </div>
-
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="group-duration">Длительность, мин</label>
-                                </div>
-                                <div class="col-8">
-                                    <input v-model="slotFilters.durationMins"
-                                           @keyup="checkdurationMins"
-                                           disabled
-                                           :class="{'my-error-border': slotValidateErrors.durationMins.length > 0}"
-                                            type="text" class="form-control" id="group-duration">
-                                    <div v-show="slotValidateErrors.durationMins.length > 0" class="my-error">{{slotValidateErrors.durationMins}}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="form-group col row">
-                                <div class="col-4 text-right">
-                                    <label for="employee">Тренер</label>
+                                    <label for="contacts">Клиенты</label>
                                 </div>
                                 <div class="col-8 position-relative">
-                                    <input @keyup="gspUserFilter" type="text" class="form-control" id="employee"
-                                           :class="{'my-error-border': slotValidateErrors.employee.length > 0}"
-                                           v-model="slotFilters.employee.name" autofocus>
-                                     <div class="position-absolute col-11 slot-employee-absolute pt-3 mt-1 rounded"
-                                          v-show="filterValueLists.slotSortedUserList.length > 0">
-                                        <ul class="px-0">
-                                            <li @click="selectCurrentUserFromList(user)"
-                                                v-for="user in filterValueLists.slotSortedUserList">{{user.NAME}}</li>
-                                        </ul>
-                                    </div>
-                                    <div v-show="slotValidateErrors.employee.length > 0" class="my-error">{{slotValidateErrors.employee}}</div>
+                                    <multiselect
+                                            v-model="slotFilters.contacts"
+                                            :options="filterValueLists.slotRequestedContacts"
+                                            :multiple="true"
+                                            :max="3"
+                                            :max-limit="showContactsMaxLimitError"
+                                            :clear-on-select="true"
+                                            value="ID"
+                                            label="NAME"
+                                            track-by="NAME"
+                                            placeholder="Выберите контакт"
+                                            @input="testGetContacts"
+                                    >
+                                    </multiselect>
                                 </div>
-
+<!--                                :maxElements="showContactsMaxLimitError"-->
+<!--                                :noResult="showContactsMaxLimitError"-->
+                                {{slotFilters.contacts}}
                             </div>
-                            <div class="form-group col row">
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="form-group col row align-items-center">
+                                <div class="col-4 text-right">
+                                    <label for="trainingGroup">Группы {{filterValueLists.slotSortedTrainingGroupList.length}}</label>
+                                </div>
+                                <div class="col-8">
+                                    <select v-model="slotFilters.groupId"
+                                            :disabled="(filterValueLists.slotGroupTrainingList.length > 0 && filterValueLists.slotSortedZoneList.length > 0) ? false : true"
+                                            :class="{'my-error-border': slotValidateErrors.groupId.length > 0}"
+                                            class="form-control" id="trainingGroup">
+                                        <option selected value="0">Не выбрано</option>
+                                        <template v-if="filterValueLists.slotSortedTrainingGroupList.length > 0" >
+                                            <option v-for="group in filterValueLists.slotSortedTrainingGroupList" :value="group.ID">{{group.NAME}}</option>
+                                        </template>
+                                        <option :value="slotFilters.slotShowGroupNameFieldDefault">Создать новую</option>
+                                    </select>
+                                    <div v-show="slotValidateErrors.groupId.length > 0" class="my-error">{{slotValidateErrors.groupId}}</div>
+                                </div>
+                            </div>
+
+                            <div class="form-group col row align-items-center"></div>
+
+                        </div>
+
+                        <div class="row">
+
+                            <div class="form-group col row align-items-center"
+                                 v-show="slotFilters.groupId == slotFilters.slotShowGroupNameFieldDefault">
                                 <div class="col-4 text-right">
                                     <label for="group-title">Название группы</label>
                                 </div>
@@ -217,7 +303,11 @@
                                     <div v-show="slotValidateErrors.groupName.length > 0" class="my-error">{{slotValidateErrors.groupName}}</div>
                                 </div>
                             </div>
+
+                            <div class="form-group col row align-items-center"></div>
+
                         </div>
+
                         <!--filterValueLists.slotCheckBoxList-->
                         <div class="form-group row">
                             <div class="col-md-12">
@@ -236,7 +326,6 @@
                                                             :name="thCol.NAME">
                                                     </th-function-component>
                                                 </template>
-
                                             </template>
                                         </tr>
                                     </thead>

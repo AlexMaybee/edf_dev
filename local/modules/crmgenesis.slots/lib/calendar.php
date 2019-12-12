@@ -43,7 +43,7 @@ class Calendar{
 
         $filter = [
             '>=DATE_FROM' => date('d.m.Y',strtotime($firstMonthDay)),
-            'USER_ID' => $filters['seletedUserId'],
+            'USER_ID' => $filters['selectedUserId'],
         ];
 
         //для получения массива предыдущей недели
@@ -57,6 +57,18 @@ class Calendar{
             ? $filter['<DATE_TO'] = date('d.m.Y',strtotime($lastMonthDay.' +1 day'))
             : $filter['<DATE_TO'] = date('d.m.Y',strtotime($filters['lastWeekDay'].'+1 day'));
 
+
+        $typeListId = Bitrixfunction::getCoptionValue('SLOT_TYPE_LIST');
+        $typeListArr = []; //массив значений типа (индивид., групп., сплит)
+        if($typeListId){
+            $typeList = Bitrixfunction::getListElements(
+                ['IBLOCK_ID' => $typeListId], ['ID', 'NAME'], ['DATE_CREATE' => 'DESC']
+            );
+            if($typeList)
+                $typeListArr = $typeList;
+        }
+
+//        $result['test_type'] = $typeListArr;
 
 //        $result['filter'] = $filter;
 
@@ -96,11 +108,19 @@ class Calendar{
 
                 $result['workHoursThisWeek']['class'] = self::getIndicatorColor($result['workHoursThisWeek']['hours'],self::WeekNormaHours);
 
-                $colors = self::selectActivityColor($event['DATE_FROM']);
+                $colors = self::selectSlotColor($event['TYPE_ID']);
+
+                $eventTitle = Loc::getMessage('CRM_GENESIS_CALENDAR_SLOT_TEXT_EMPTY');
+
+                if($typeListArr){
+                    foreach ($typeListArr as $typeElem)
+                        if($event['TYPE_ID'] == $typeElem['ID'])
+                            $eventTitle = $typeElem['NAME'];
+                }
+
                 $result['result'][] = [
                     'id' => $event['ID'],
-//                    'title' => 'Встреча #' . $event['ID'],
-                    'title' => Loc::getMessage('CRM_GENESIS_CALENDAR_SLOT_TEXT_EMPTY'),
+                    'title' => $eventTitle,
                     'start' => date('Y-m-d H:i:s', strtotime($event['DATE_FROM'])),
                     'end' => date('Y-m-d H:i:s', strtotime($event['DATE_TO'])),
                     'resourceId' => $event['USER_ID'],
@@ -117,9 +137,9 @@ class Calendar{
             //прошлая неделя
             if(strtotime($event['DATE_FROM']) >= strtotime($previousWeekFirstDay) &&
                 strtotime($event['DATE_TO']) <= strtotime($previousWeekLastDay.' 23:59:59')){
-                $event['DATE_FROM'] =  date('d.m.Y H:i:s',strtotime($event['DATE_FROM']));
-                $event['DATE_TO'] =  date('d.m.Y H:i:s',strtotime($event['DATE_TO']));
-                $result['test_last_week'][] = $event;
+                $event['DATE_FROM'] = date('d.m.Y H:i:s',strtotime($event['DATE_FROM']));
+                $event['DATE_TO'] = date('d.m.Y H:i:s',strtotime($event['DATE_TO']));
+//                $result['test_last_week'][] = $event;
                 $result['prevWeekSlotsNum']++;
             }
 
@@ -150,8 +170,8 @@ class Calendar{
             $endH = 1;
 
             while(strtotime($start.'+'.$strtH.' hour') < strtotime($finish)){
-                $result['test'][] = date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour'))
-                    .' - '.date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour'));
+//                $result['test'][] = date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour'))
+//                    .' - '.date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour'));
 
                 $addRes = Bitrixfunction::addSlot([
                     'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
@@ -160,8 +180,8 @@ class Calendar{
                     'DATE_TO' => new \Bitrix\Main\Type\DateTime(
                         date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
                         "d.m.Y H:i:s"),
-                    'USER_ID' => $filters['seletedUserId'],
-                    'DATE_CREATE' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                    'USER_ID' => $filters['selectedUserId'],
+                    'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
                     'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
                 ]);
 
@@ -209,7 +229,7 @@ class Calendar{
             'GROUP_SIZE' => $filters['groupSize'],
             'GROUP_NAME' => $filters['groupName'],
             'USER_ID' => $filters['employee']['id'],
-            'DATE_MODIFY' => new \Bitrix\Main\Type\Date( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
             'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
         ];
         $result = Bitrixfunction::updateSlot($slotId,$updFields);
@@ -275,7 +295,7 @@ class Calendar{
                             'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
                         ]);
 
-                        $result['new_test_arr'][] = $addRes;
+//                        $result['new_test_arr'][] = $addRes;
                         if(!$addRes['result']) $result['errors'][] = 'Ошибка при создании элемента в 1й таблицы с датой';
                         else{
                             $addBusinessRes = Bitrixfunction::addSlotBusiness([
@@ -352,7 +372,7 @@ class Calendar{
             'filter' => [
                 '>=DATE_FROM' => date('d.m.Y',strtotime($filters['firstWeekDay'].' -1 week')),
                 '<=DATE_TO' => date('d.m.Y',strtotime($filters['lastWeekDay'].' -6 days')),
-                'USER_ID' => $filters['seletedUserId'],
+                'USER_ID' => $filters['selectedUserId'],
             ],
             'order' => ['DATE_FROM' => 'ASC'],
         ])->fetchAll();
@@ -403,29 +423,30 @@ class Calendar{
 
     /*@method: в зависимости от даты начала эвента меняем цвет
     @return: array, цвет блока + цвет текста*/
-    private function selectActivityColor($dateStart){
-        $diffRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
-            date ('d.m.Y'), date('d.m.Y',strtotime($dateStart)),'%R%a');
-        switch (true){
-//            case ($diffRes < 0): //прошлый день
-//                $color = [
-//                    'block' => '#000',
-//                    'text' => '#fff'
-//                ];
-//                break;
-//            case ($diffRes > 0): //будущий день
-//                $color = [
-//                    'block' => '#007bff',
-//                    'text' => '#fff'
-//                ];
-//                break;
-//            default:   //текущий день
-//                $color = [
-//                    'block' => '#d00000',
-//                    'text' => '#fff'
-//                    ];
-//                break;
-            default:   //текущий день
+    private function selectSlotColor($slotType){
+
+//        $diffRes = Bitrixfunction::returnDiffBetweenDatesInCurFormat(
+//            date ('d.m.Y'), date('d.m.Y',strtotime($dateStart)),'%R%a');
+        switch ($slotType){
+            case (28996): //индивидуальная
+                $color = [
+                    'block' => '#054ab1',
+                    'text' => '#fff'
+                ];
+                break;
+            case (28995): //групповая
+                $color = [
+                    'block' => '#d46b00',
+                    'text' => '#fff'
+                ];
+                break;
+            case(28994):   //сплит
+                $color = [
+                    'block' => '#04751e',
+                    'text' => '#fff'
+                    ];
+                break;
+            default:   //не выбран тип слота, т.е. пустой
                 $color = [
                     'block' => '#c6cdd3',
                     'text' => '#535c69'

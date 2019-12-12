@@ -26,7 +26,8 @@ $MESS["CRM_GENESIS_C_OPTION_GET_SLOT_CLUB_LIST_RESULT_ERROR"] = 'Ошибка п
 $MESS["CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_ID_ERROR"] = 'Ошибка при получении ID списка для зон в select приложения!';
 $MESS["CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_RESULT_ERROR"] = 'Ошибка при получении списка зон для select приложения или он пуст!';
 
-
+$MESS["CRM_GENESIS_C_OPTION_GET_TRAINING_GROUP_LIST_ID_ERROR"] = 'Ошибка при получении ID списка для тренировочных групп в select приложения!';
+$MESS["CRM_GENESIS_C_OPTION_GET_TRAINING_GROUP_LIST_RESULT_ERROR"] = 'Ошибка при получении списка тренировочных групп для select приложения или он пуст!';
 
 
 $MESS["CRM_GENESIS_SLOTS_COUNTER_COMPONENT_WEEK_HOURS_TEXT"] = "Отмечено за неделю";

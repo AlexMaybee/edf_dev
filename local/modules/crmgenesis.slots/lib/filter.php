@@ -14,7 +14,7 @@ class Filter{
     public function getUserRoleAndId(){
         $result = [
             'isAdmin' => false,
-            'seletedUserId' => false,
+            'selectedUser' => [],
             'error' => false,
             'lang' => [
                 'weekText' => Loc::getMessage('CRM_GENESIS_SLOTS_COUNTER_COMPONENT_WEEK_HOURS_TEXT'),
@@ -45,7 +45,10 @@ class Filter{
         else
             $result['isAdmin'] = Bitrixfunction::checkUserIfAdmin();
 
-        $result['seletedUserId'] = $curUserId;
+        $result['selectedUser'] = [
+            'id' => $curUserId,
+            'name' => $GLOBALS["USER"]->getLastName().' '.$GLOBALS["USER"]->getFirstName(),
+        ];
 
         $result['hole_admins_group'] = $userGroupsIds;
 
@@ -73,9 +76,9 @@ class Filter{
      @ return: array*/
     public function getGspModalSelectFields(){
         $result = [
-            'typeList' => [],
             'clubList' => [],
-            'zonaList' => [],
+            'contactList' => [],
+            'errors' => [],
             'locationList' => [],
             'statusList' => [],
             'serviceList' => [],
@@ -83,7 +86,10 @@ class Filter{
                 'ths' => [],
                 'tds' => [],
             ],
-            'errors' => [],
+            'typeList' => [],
+            'groupTrainingList' => [],
+            'zonaList' => [],
+
         ];
 
         //получения массива дней и часов для чекбоксов
@@ -140,12 +146,16 @@ class Filter{
                 : $result['clubList'] = $clubList;
         }
 
+
+        //получение списка контактов
+
+
         $zonaListId = Bitrixfunction::getCoptionValue('SLOT_ZONA_LIST');
         if(!$zonaListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SLOT_ZONA_LIST_ID_ERROR');
         else{
 //            $zonaList = Bitrixfunction::getListElementsWithProperties( ['IBLOCK_ID' => $zonaListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
 
-            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД!!!
+            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД И БЕЗ МНОЖЕТСВЕННЫХ ПОЛЕЙ!!!
             $zonaList = Bitrixfunction::getListElemsOld(
                 ['IBLOCK_ID' => $zonaListId],['ID','NAME','PROPERTY_307'],['DATE_CREATE' => 'DESC']
             );
@@ -160,7 +170,7 @@ class Filter{
 //            $locationList = Bitrixfunction::getListElements(
 //                ['IBLOCK_ID' => $locationListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
 
-            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД!!!
+            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД И БЕЗ МНОЖЕТСВЕННЫХ ПОЛЕЙ!!!
             $locationList = Bitrixfunction::getListElemsOld(
                 ['IBLOCK_ID' => $locationListId],['ID','NAME','PROPERTY_308'],['DATE_CREATE' => 'DESC']
             );
@@ -186,19 +196,64 @@ class Filter{
                 ['IBLOCK_ID' => $serviceListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
             );
             (!$serviceList)
-                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_RESULT_ERROR')
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_TRAINING_GROUP_LIST_RESULT_ERROR')
                 : $result['serviceList'] = $serviceList;
         }
 
+        //список групповых тренировок
+        $groupTrainingListId = Bitrixfunction::getCoptionValue('SLOT_TRAINING_GROUP_LIST');
+        if(!$groupTrainingListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_TRAINING_GROUP_LIST_ID_ERROR');
+        else{
+//            $groupTrainingList = Bitrixfunction::getListElements(
+//                ['IBLOCK_ID' => $groupTrainingListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
 
-
-
-
+            //!!! ВКЛЮЧЕН ДРЕВНИЙ МЕТОД И БЕЗ МНОЖЕТСВЕННЫХ ПОЛЕЙ!!!
+            $groupTrainingList = Bitrixfunction::getListElemsOld(
+                ['IBLOCK_ID' => $groupTrainingListId],['ID','NAME','ACTIVE_FROM','ACTIVE_TO',
+                    'PROPERTY_309','PROPERTY_310','PROPERTY_311',
+                    'PROPERTY_312','PROPERTY_313','PROPERTY_314',
+                    'PROPERTY_315','PROPERTY_316'
+                ],
+                ['DATE_CREATE' => 'DESC']
+            );
+            (!$groupTrainingList)
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_TRAINING_GROUP_LIST_RESULT_ERROR')
+                : $result['groupTrainingList'] = $groupTrainingList;
+        }
 
 
         Bitrixfunction::sentAnswer($result);
     }
 
+
+    /*@method: получение списка клиентов по фамилии/номеру телефона
+    * @return: array*/
+    public function getContactsByNameOrPhone($filter){
+        $result = [
+            'contactList' => [],
+            'error' => false,
+        ];
+
+//        (preg_match('/^(+)?[0-9]+$/'))
+//            ? $searchByField = '%PHONE'
+//            : $searchByField = '%LAST_NAME';
+
+//        $result['contactList'] = $contactsArr;
+
+
+        //ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ МЕТОД!!!
+        $contactsArr = Bitrixfunction::getContactsList(
+            ['%LAST_NAME' => $filter['contactName']],
+            ['ID','NAME','LAST_NAME'],
+            ['LAST_NAME' => 'DESC'],
+           ''
+        );
+        if($contactsArr)
+            foreach ($contactsArr as $contact)
+                $result['contactList'][] = ['ID' => $contact['ID'], 'NAME' => $contact['LAST_NAME'].' '.$contact['NAME']];
+
+        Bitrixfunction::sentAnswer($result);
+    }
 
     /*@method: получение значений для фильтра пользователей
     * @return: array*/

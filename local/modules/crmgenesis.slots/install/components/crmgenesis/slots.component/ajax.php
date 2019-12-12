@@ -53,3 +53,7 @@ if($data['action'] == 'addFilledSlotsBetweenPeriod')
 // #11 Drag слота (смена дат перетаскиванием)
 if($data['action'] == 'changeDateByDragNDrop')
     Crmgenesis\Slots\Calendar::changeDateByDragNDrop($data['slotId'],$data['workDayStart'],$data['workDayFinish']);
+
+// #12 Поиск контактов по имени/телефону
+if($data['action'] == 'getContactsByNameOrPhone')
+    Crmgenesis\Slots\Filter::getContactsByNameOrPhone($data['filters']);

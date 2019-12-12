@@ -206,4 +206,14 @@ class Bitrixfunction{
         return $result;
     }
 
+    //получение контактов
+    public function getContactsList($filter,$select,$order=[],$limit=''){
+        return $record = \Bitrix\Crm\ContactTable::getList([
+            'select' => $select,
+            'filter' => $filter,
+            'order' => $order,
+            'limit' => $limit,
+        ])->fetchAll();
+    }
+
 }
