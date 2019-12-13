@@ -80,6 +80,32 @@ class Bitrixfunction{
         return $result;
     }
 
+    public function deleteSlotBusiness($id){
+        $result = ['result' => false,'errors' => []];
+        $delResult = Slot_businessTable::delete($id);
+        (!$delResult->isSuccess())
+            ? $result['errors'] = $delResult->getErrorMessages()
+            : $result['result'] = $delResult;
+        return $result;
+    }
+
+    public function updateSlotBusiness($id,$updFields){
+        $result = ['result' => false,'errors' => []];
+        $updResult = Slot_businessTable::Update($id,$updFields);
+        (!$updResult->isSuccess())
+            ? $result['errors'] = $updResult->getErrorMessages()
+            : $result['result'] = $updResult;
+        return $result;
+    }
+
+    public function getSlotBusinessList($filter,$select,$order=[]){
+        return $record = Slot_businessTable::getList([
+            'select' => $select,
+            'filter' => $filter,
+            'order' => $order,
+        ])->fetchAll();
+    }
+
     public function returnDiffBetweenDatesInCurFormat($curD,$diffD,$form){
         $curDate = new \DateTime($curD); //Сравниваемая дата (текущая) Сюда нужно передавать дату для сравнения DateTime('2017-06-22').
         $diffDate = new \DateTime($diffD);
@@ -164,6 +190,27 @@ class Bitrixfunction{
         ])->fetchAll();
     }
 
+    //получение контактов
+    public function getContactsList($filter,$select,$order=[],$limit=''){
+        return $record = \Bitrix\Crm\ContactTable::getList([
+            'select' => $select,
+            'filter' => $filter,
+            'order' => $order,
+            'limit' => $limit,
+        ])->fetchAll();
+    }
+
+    //получение 1го контакта
+    public function getContactData($filter,$select){
+        return $record = \Bitrix\Crm\ContactTable::getList([
+            'select' => $select,
+            'filter' => $filter,
+        ])->fetch();
+    }
+
+
+
+
 
     /*функции для файла option.php*/
 
@@ -181,13 +228,6 @@ class Bitrixfunction{
         $result = [];
         $statusListID = self::getCoptionValue('SLOT_STATUS_LIST');
         if($statusListID > 0){
-            $defStList = \Bitrix\Iblock\ElementTable::getList([
-                'select' => ['ID','NAME'],
-                'filter' => ['IBLOCK_ID' => $statusListID],
-                'order' => ['DATE_CREATE' => 'DESC'],
-            ]);
-            while($ob = $defStList->fetch())
-                $defStatusValList[$ob['ID']] = $ob['NAME'].' ('.$ob['ID'].')';
             $defList = self::getListElements(['IBLOCK_ID' => $statusListID],['ID','NAME'],['DATE_CREATE' => 'DESC']);
             if($defList)
                 foreach ($defList as $list)
@@ -196,6 +236,20 @@ class Bitrixfunction{
         return $result;
     }
 
+    //получение списка значений типов (индивид., групп., сплит)
+    public function getTypeIdValList(){
+        $result = [];
+        $typeIdListID = self::getCoptionValue('SLOT_TYPE_LIST');
+        if($typeIdListID > 0){
+            $typeIdList = self::getListElements(['IBLOCK_ID' => $typeIdListID],['ID','NAME'],['DATE_CREATE' => 'DESC']);
+            if($typeIdList)
+                foreach ($typeIdList as $list)
+                    $result[$list['ID']] = $list['NAME'].' ('.$list['ID'].')';
+        }
+
+        return $result;
+    }
+    
     //получение массива польз. групп
     public function getGroupsArrFroOprionPhp(){
         $result = [];
@@ -206,14 +260,6 @@ class Bitrixfunction{
         return $result;
     }
 
-    //получение контактов
-    public function getContactsList($filter,$select,$order=[],$limit=''){
-        return $record = \Bitrix\Crm\ContactTable::getList([
-            'select' => $select,
-            'filter' => $filter,
-            'order' => $order,
-            'limit' => $limit,
-        ])->fetchAll();
-    }
+
 
 }

@@ -89,17 +89,7 @@ let app = new Vue({
                 type: 0,//тип (индивид., групп., сплит) в gsp-Modal
                 zone: 0 //зона
             },
-            // slotClub: '', //клуб в gsp-Modal
-            // slotEmployee: {
-            //     id: 0,  //ID сотрудника в gsp-Modal, по итогу этот параметр будет осохранияться
-            //     name: '', //сотрудник в gsp-Modal
-            // },
-            // slotLocation: '', //локация в gsp-Modal
-            // slotPeriodFrom: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
-            // slotPeriodTo: moment(new Date).format('YYYY-MM-DD'), //период с, gsp-Modal
             slotSelectedCheckboxes: [],//массив чекбоксов в gsp-Modal
-            // slotType: '', //тип (индивид., групп., сплит) в gsp-Modal
-            // slotZone: '', //зона в gsp-Modal
             slotValidateErrors: {  //объект с ошибками для каждого поля
                 ageFrom: '',
                 ageTo: '',
@@ -117,6 +107,11 @@ let app = new Vue({
                 type: '',
                 zona: '',
             },
+
+
+            typeIdVal: {},// индивид./сплит 1 место в поле численности
+
+
             workDayStart: '', //дата начала рабочего дня при выборе
             workDayFinish: '', //дата окончания раюочего дня при выборе
             workHoursThisWeek: {
@@ -364,6 +359,9 @@ let app = new Vue({
                         this.slotFilters.ageFrom = response.data.result.AGE_FROM;
                         this.slotFilters.ageTo = response.data.result.AGE_TO;
                         this.slotFilters.club = response.data.result.CLUB_ID;
+
+                        // this.slotFilters.contacts = response.data.result.SLOTS_BUSINESS;
+
                         this.gspZoneFilterByClub();
                         this.slotFilters.employee = {
                             id: response.data.result.USER_ID,
@@ -436,10 +434,15 @@ let app = new Vue({
 
                         this.filterValueLists.slotGroupTrainingList = response.data.groupTrainingList;
 
+                        //значения типов для модлаки и отображения полей
+                        this.typeIdVal = response.data.typeIdVal;
+
+
+
                         //вывод таблицы с чекбоксами
                         this.filterValueLists.slotCheckBoxList = response.data.table;
 
-                        console.log('slotCheckBoxList: ',this.filterValueLists.slotCheckBoxList)
+                        console.log('checkBXS: ',this.filterValueLists.slotCheckBoxList)
 
                 }).catch(err => console.log(err));
             }
@@ -562,7 +565,7 @@ let app = new Vue({
                 this.filterValueLists.slotSortedTrainingGroupList = [];
             }
 
-            console.log('filtered locations:',this.filterValueLists.slotSortedLocationList);
+            // console.log('filtered locations:',this.filterValueLists.slotSortedLocationList);
         },
 
         //сортировка групп по локации (или хз, по чем они там захотят!!!
@@ -642,15 +645,20 @@ let app = new Vue({
                 (integerReqExp.test(this.slotFilters.location) && this.slotFilters.location <= 0 ))
                 this.slotValidateErrors.location = 'Выберите Локацию!';
 
-            // if(this.slotFilters.ageFrom <= 0 )
-            if(!integerReqExp.test(this.slotFilters.ageFrom) ||
-                (integerReqExp.test(this.slotFilters.ageFrom) && this.slotFilters.ageFrom < 0 ))
-                this.slotValidateErrors.ageFrom = 'Укажите начальный возраст!';
+            //если выбрана групповая, то валидируем возраст с и до
+            if(!(this.slotFilters.type in this.typeIdVal)){
+                // if(this.slotFilters.ageFrom <= 0 )
+                if(!integerReqExp.test(this.slotFilters.ageFrom) ||
+                    (integerReqExp.test(this.slotFilters.ageFrom) && this.slotFilters.ageFrom < 0 ))
+                    this.slotValidateErrors.ageFrom = 'Укажите начальный возраст!';
 
-            // if(this.slotFilters.ageTo <= 0 )
-            if(!integerReqExp.test(this.slotFilters.ageTo) ||
-                (integerReqExp.test(this.slotFilters.ageTo) && this.slotFilters.ageTo <= 0 ))
-                this.slotValidateErrors.ageTo = 'Укажите конечный возраст!';
+                // if(this.slotFilters.ageTo <= 0 )
+                if(!integerReqExp.test(this.slotFilters.ageTo) ||
+                    (integerReqExp.test(this.slotFilters.ageTo) && this.slotFilters.ageTo <= 0 ))
+                    this.slotValidateErrors.ageTo = 'Укажите конечный возраст!';
+            }
+
+
 
             // if(this.slotFilters.groupSize <= 0 )
             if(!integerReqExp.test(this.slotFilters.groupSize) ||
@@ -676,20 +684,29 @@ let app = new Vue({
             // if(this.slotFilters.groupName <= 0 )
             //     this.slotValidateErrors.groupName = 'Укажите Название группы!';
 
-            if(this.slotSelectedCheckboxes.length <= 0 )
-                this.slotValidateErrors.checkboxes = 'Не выбран ни один чекбокс!';
-            // console.log('chbx',this.slotSelectedCheckboxes.length);
+
+            if(this.slotFilters.contacts.length <= 0)
+                this.slotValidateErrors.contacts = 'Выберите клиентов!';
+
+            //при групповой требуем чекбоксы
+            if(!(this.slotFilters.type in this.typeIdVal)){
+                if(this.slotSelectedCheckboxes.length <= 0 )
+                    this.slotValidateErrors.checkboxes = 'Не выбран ни один чекбокс!';
+                // console.log('chbx',this.slotSelectedCheckboxes.length);
+            }
+
 
 
             if(this.countErrorsInObject(this.slotValidateErrors) == 0) {
-                console.log('Save in DB!!!');
-                if (this.seletedSlotId > 0) //это редактирование текущего элемента
-                    this.updateSlot();
+            console.log('Save in DB!!!');
+            if (this.seletedSlotId > 0) //это редактирование текущего элемента
+                this.updateSlot();
 
-                //иначе создание какого-то расписания и кучу слотов для выбранного сотрудника
-                else
-                    this.addFilledSlotsBetweenPeriod();
+            //иначе создание какого-то расписания и кучу слотов для выбранного сотрудника
+            else
+                this.addFilledSlotsBetweenPeriod();
             }
+
 
             //groupName
             console.log('dates Gsp:',this.slotFilters);
@@ -718,8 +735,8 @@ let app = new Vue({
                 else{
 
                     $('#gspModal').modal('hide');
-                    // this.resetGspPopupFields();
-                    // this.slotSelectedCheckboxes = [];
+                    this.resetGspPopupFields();
+                    this.slotSelectedCheckboxes = [];
 
                     // this.workDayStart = '';
                     // this.workDayFinish = '';
@@ -795,11 +812,20 @@ let app = new Vue({
                     workDayFinish: finish,
                 }).then(response => {
 
-                // console.log('changeDateByDragNDrop: ',response.data)
+                console.log('changeDateByDragNDrop: ',response.data)
                 if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
                 this.getUserSlots();
             }).catch(err => console.log(err));
 
+        },
+
+
+        //изменение типа = изменение отображения полей, по кючу получаем значение
+        changeTypeID: function(){
+            // console.log('test val', this.slotFilters.type in this.typeIdVal);
+            (this.slotFilters.type in this.typeIdVal)
+                ? this.slotFilters.groupSize = this.typeIdVal[this.slotFilters.type]
+                : this.slotFilters.groupSize = '';
         },
 
         //4 функуции очистки полей от ненужных символов

@@ -19,6 +19,8 @@ $MESS['CRM_GENESIS_SLOTS_TAB2_INFO'] = 'Привязка значений/ста
 $MESS['CRM_GENESIS_SLOTS_TAB2_INFO_DESCRIPRION'] = 'Необходимо привязать значения по умолчанию';
 $MESS['CRM_GENESIS_SLOTS_TAB2_INNER_TITLE'] = 'Выберите для каждого поля соответствующее значение из списка';
 $MESS['CRM_GENESIS_SLOTS_STATUS_LIST_FIELD_LABEL'] = 'Список статусов слота';
+$MESS['CRM_GENESIS_SLOTS_TYPE_INDIVIDUAL_VALUE_LABEL'] = 'Тип, значение "Индивидуальная"';
+$MESS['CRM_GENESIS_SLOTS_TYPE_SPLIT_VALUE_LABEL'] = 'Тип, значение "Сплит"';
 
 $MESS['CRM_GENESIS_SLOTS_TAB3_INFO'] = 'Привязка пользовательских групп';
 $MESS['CRM_GENESIS_SLOTS_TAB3_INFO_DESCRIPRION'] = 'Необходимо привязать группы по полям';

@@ -21,31 +21,14 @@ Loader ::includeModule( $moduleId );
 
 
 //массив всех списков для селектов
-$resIblock = [];
-//$resIblock[] = Loc::getMessage('CRM_GENESIS_NOT_SELECTED_FIELD_LABEL');
-//$rsIblock = \Bitrix\Iblock\IblockTable::getList(array(
-//    'select' =>  array('ID', 'NAME'),
-//));
-//while ($arIblock = $rsIblock->fetch())
-//{
-//    $resIblock[$arIblock['ID']] = $arIblock['NAME'].' ('.$arIblock['ID'].')';
-//}
 $resIblock = Bitrixfunction::getListsArrForOptionsPhp();
 //массив всех списков для селектов
 
 //массив для выбора DEFAULT STATUS 09.12.2019
-$defStatusValList = [];
-//$statusListID = Bitrixfunction::getCoptionValue('SLOT_STATUS_LIST');
-//if($statusListID > 0){
-//    $defStList = \Bitrix\Iblock\ElementTable::getList([
-//        'select' => ['ID','NAME'],
-//        'filter' => ['IBLOCK_ID' => $statusListID],
-//        'order' => ['DATE_CREATE' => 'DESC'],
-//    ]);
-//    while($ob = $defStList->fetch())
-//        $defStatusValList[$ob['ID']] = $ob['NAME'].' ('.$ob['ID'].')';
-//}
 $defStatusValList = Bitrixfunction::getDefaultStatusFromListForOptionPhp();
+
+//массив для выбора Значений типов 13.12.2019
+$typeIdValList = Bitrixfunction::getTypeIdValList();
 
 //массив пользовательских групп
 $userGroupsArr = Bitrixfunction::getGroupsArrFroOprionPhp();
@@ -115,6 +98,18 @@ $aTabs = [
                 Loc::getMessage( 'CRM_GENESIS_SLOTS_STATUS_DEFAULT_VALUE_LABEL' ),
                 '',
                 ['selectbox', $defStatusValList]
+            ],
+            [
+                'TYPE_INDIVIDUAL_VALUE_ID',// создаст COption, потом можно его брать
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_TYPE_INDIVIDUAL_VALUE_LABEL' ),
+                '',
+                ['selectbox', $typeIdValList]
+            ],
+            [
+                'TYPE_SPLIT_VALUE_ID',// создаст COption, потом можно его брать
+                Loc::getMessage( 'CRM_GENESIS_SLOTS_TYPE_SPLIT_VALUE_LABEL' ),
+                '',
+                ['selectbox', $typeIdValList]
             ],
         ],
     ],

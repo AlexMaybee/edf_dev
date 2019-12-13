@@ -87,10 +87,15 @@ class Filter{
                 'tds' => [],
             ],
             'typeList' => [],
+            'typeIdVal' => [
+                Bitrixfunction::getCoptionValue('TYPE_INDIVIDUAL_VALUE_ID') => 1, //индивид. ID + кол-во в численности
+                Bitrixfunction::getCoptionValue('TYPE_SPLIT_VALUE_ID') => 2, // сплит ID + кол-во в численности
+            ],
             'groupTrainingList' => [],
             'zonaList' => [],
 
         ];
+
 
         //получения массива дней и часов для чекбоксов
         $result['table']['ths'] = [['NAME' => Loc::getMessage('CRM_GENESIS_SLOTS_THS_START_TEXT'), 'ID' => 0]];

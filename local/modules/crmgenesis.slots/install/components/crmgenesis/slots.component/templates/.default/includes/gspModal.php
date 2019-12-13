@@ -72,6 +72,7 @@
                                 </div>
                                 <div class="col-8">
                                     <select v-model="slotFilters.type" v-if="filterValueLists.slotTypeList.length > 0"
+                                            @change="changeTypeID"
                                             :class="{'my-error-border': slotValidateErrors.type.length > 0}"
                                             class="form-control" id="training-type">
                                         <option selected value="0">Не выбрано</option>
@@ -114,6 +115,7 @@
 
                             <div class="form-group col row align-items-center">
 
+                                <template v-if="(slotFilters.type in typeIdVal) ? false : true">
 
                                     <div class="col-3 text-right">
                                         <label for="age-start-from">Возраст с</label>
@@ -137,9 +139,10 @@
 
                                     </div>
 
-                                <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error col-12">{{slotValidateErrors.ageFrom}}</div>
-                                <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error col-12">{{slotValidateErrors.ageTo}}</div>
+                                    <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error col-12">{{slotValidateErrors.ageFrom}}</div>
+                                    <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error col-12">{{slotValidateErrors.ageTo}}</div>
 
+                                </template>
 
                             </div>
 
@@ -256,6 +259,7 @@
                                             @input="testGetContacts"
                                     >
                                     </multiselect>
+                                    <div v-show="slotValidateErrors.contacts.length > 0" class="my-error">{{slotValidateErrors.contacts}}</div>
                                 </div>
 <!--                                :maxElements="showContactsMaxLimitError"-->
 <!--                                :noResult="showContactsMaxLimitError"-->
