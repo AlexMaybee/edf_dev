@@ -131,6 +131,13 @@ class Bitrixfunction{
         ])->fetchAll();
     }
 
+    public function getListElement($filter,$select){
+        return $records = \Bitrix\Iblock\ElementTable::getRow([
+            'select' => $select,
+            'filter' => $filter,
+        ]);
+    }
+
     //ХУЙНЯ, НЕ ОТДАЕТ СВОЙСТВА, НЕ ИСПОЛЬЗУЕТСЯ!!!
     public function getListElementsWithProperties($filter,$select,$order=[]){
         $res = [];

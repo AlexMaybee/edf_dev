@@ -19,20 +19,21 @@ Vue.component('animate-time-counters',{
     },
     computed: {
         hourNew: function () {
-            return this.hourStart.toFixed(1);
+            return this.hourStart.toFixed(2);
         },
     }, methods: {
         animateHour: function () {
-            var self = this;
-            var id = setInterval(function () {
-                if(self.hourStart < self.hours) {
-                    return self.hourStart += 0.5;
+            let self = this,
+                id = setInterval(function () {
+
+                if(self.hourStart.toFixed(2) < self.hours) {
+                    return self.hourStart += 0.01;
                 }
-                else if(self.hourStart > self.hours){
-                    return self.hourStart -= 0.5;
+                else if(self.hourStart.toFixed(2) > self.hours){
+                    return self.hourStart -= 0.01;
                 }
                 else clearInterval(id);
-            },1)
+            },0.001)
         },
     },
     mounted: function () {

@@ -8,6 +8,8 @@ use \Crmgenesis\Slots\Bitrixfunction,
 class Filter{
 
     const HOLE_ADMINS_COPTION_TEXT = 'HOLE_ADMINISTRATOR_GROUP';
+    const PRODUCT_CATALOG_ID = 27;
+    const PRODUCTS_SECTION_ID = 195;
 
     /*@method: получение ID и роли текущего пользователя + берем lang-строки для счетчиков
      * @return: array*/
@@ -80,6 +82,11 @@ class Filter{
             'contactList' => [],
             'errors' => [],
             'locationList' => [],
+
+
+            'productList' => [],
+
+
             'statusList' => [],
             'serviceList' => [],
             'table' => [
@@ -93,7 +100,6 @@ class Filter{
             ],
             'groupTrainingList' => [],
             'zonaList' => [],
-
         ];
 
 
@@ -197,12 +203,44 @@ class Filter{
         $serviceListId = Bitrixfunction::getCoptionValue('SLOT_SERVISE_LIST');
         if(!$serviceListId) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_ID_ERROR');
         else{
-            $serviceList = Bitrixfunction::getListElements(
-                ['IBLOCK_ID' => $serviceListId],['ID','NAME'],['DATE_CREATE' => 'DESC']
+
+            $serviceList = Bitrixfunction::getListElemsOld(
+                ['IBLOCK_ID' => $serviceListId, '!PROPERTY_322' => false],['ID','NAME','PROPERTY_322'], ['DATE_CREATE' => 'DESC']
             );
+
+
+//            if($serviceList){
+//
+//                $wholeResult = [];
+//
+//                $serviceListByEmployee = Bitrixfunction::getListElemsOld(
+//                    ['IBLOCK_ID' => 58, '!PROPERTY_323' => false],['ID','NAME','PROPERTY_320','PROPERTY_323'], ['DATE_CREATE' => 'DESC']
+//                );
+//                if(!$serviceListByEmployee) Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_BY_USERS_RESULT_ERROR');
+//                else {
+//                        foreach ($serviceList as $service){
+//
+//                            foreach ($serviceListByEmployee as $sortedBy){
+//                                if($service['PROPERTY_322_VALUE'] == $sortedBy['PROPERTY_323']){
+//                                    $service['CURRENT_USER_ID'] = $sortedBy['PROPERTY_320_VALUE'];
+//                                    $wholeResult[] = $service;
+//                                }
+//
+//                            }
+//
+//                        }
+//                }
+//                $result['test_kkk'] = $serviceListByEmployee;
+//                $result['test_DDD'] = $wholeResult;
+//
+//            }
+
+//            $serviceList = Bitrixfunction::getListElements(
+//                ['IBLOCK_ID' => $serviceListId],['ID','NAME','PROPERTY_322'],['DATE_CREATE' => 'DESC']
+//            );
             (!$serviceList)
-                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_TRAINING_GROUP_LIST_RESULT_ERROR')
-                : $result['serviceList'] = $serviceList;
+                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_RESULT_ERROR')
+                :$result['serviceList'] = $serviceList;
         }
 
         //список групповых тренировок
@@ -226,9 +264,19 @@ class Filter{
                 : $result['groupTrainingList'] = $groupTrainingList;
         }
 
+        //получение списка товаров
+        $productList = Bitrixfunction::getListElemsOld(
+            ['IBLOCK_ID' => self::PRODUCT_CATALOG_ID,'IBLOCK_SECTION_ID' => self::PRODUCTS_SECTION_ID],['ID','NAME'],
+            ['DATE_CREATE' => 'DESC']);
+        (!$productList)
+            ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_PRODUCTS_LIST_RESULT_ERROR',[
+                '#DIR#' => self::PRODUCTS_SECTION_ID])
+            :  $result['productList'] = $productList;
+
 
         Bitrixfunction::sentAnswer($result);
     }
+
 
 
     /*@method: получение списка клиентов по фамилии/номеру телефона

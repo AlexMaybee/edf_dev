@@ -1,13 +1,15 @@
 <?php
 namespace Crmgenesis\Slots;
 
+use Crmgenesis\Exchange1c\Bitrixfunctions;
 use \Crmgenesis\Slots\Bitrixfunction,
     \Bitrix\Main\Localization\Loc;
 
 class Calendar{
 
-    const WeekNormaHours = 40;
+
     const MonthNormaHours = 160;
+    const WeekNormaHours = 40;
 
     /*
      * @method: Get Calendar Events By Filter: Start/End week date + selected user ID
@@ -57,7 +59,7 @@ class Calendar{
             ? $filter['<DATE_TO'] = date('d.m.Y',strtotime($lastMonthDay.' +1 day'))
             : $filter['<DATE_TO'] = date('d.m.Y',strtotime($filters['lastWeekDay'].'+1 day'));
 
-
+        $groupListId = Bitrixfunction::getCoptionValue('SLOT_TRAINING_GROUP_LIST');
         $typeListId = Bitrixfunction::getCoptionValue('SLOT_TYPE_LIST');
         $typeListArr = []; //массив значений типа (индивид., групп., сплит)
         if($typeListId){
@@ -108,7 +110,7 @@ class Calendar{
             if(strtotime($event['DATE_FROM']) >= strtotime($filters['firstWeekDay']) &&
                 strtotime($event['DATE_TO']) <= strtotime($filters['lastWeekDay'].' 23:59:59')){
                 $result['workHoursThisWeek']['hours'] += $event['H'];
-                $result['workHoursThisWeek']['hours'] += $event['M']/60;
+                $result['workHoursThisWeek']['hours'] += round($event['M']/60,2);
 
                 $result['workHoursThisWeek']['class'] = self::getIndicatorColor($result['workHoursThisWeek']['hours'],self::WeekNormaHours);
 
@@ -145,7 +147,18 @@ class Calendar{
                             }
 
                             //!!! здесь нужно будет вывести название группы
-//                            else{}
+                            else{
+                                //название группы - ПОЗЖЕ ЗАМЕНИТЬ ПОЛЕ ЗДЕСЬ!!!
+                                if($event['GROUP_NAME'] > 0){
+
+                                    //запрос названия группы
+                                    if($groupListId){
+                                        $groupName = Bitrixfunction::getListElement(['IBLOCK_ID' => $groupListId,'ID' => $event['GROUP_NAME']],
+                                            ['ID','NAME']);
+                                        if($groupName) $eventTitle .= ' - '.$groupName['NAME'];
+                                    }
+                                }
+                            }
 
                         }
 
@@ -193,38 +206,77 @@ class Calendar{
         $start = date('d.m.Y H:i:s',strtotime($filters['workDayStart']));
         $finish = date('d.m.Y H:i:s',strtotime($filters['workDayFinish']));
 
-        $intervalHours = Bitrixfunction::returnDiffBetweenDatesInCurFormat($start,$finish,'%R%h');
+        list($interV['hours'],$interV['minutes'],$interV['seconds']) = explode(':',$filters['settings']['slotDuration']);
 
-        if($intervalHours > 0){
-            $strtH = 0;
-            $endH = 1;
+        $h = 0;
+        $m = 0;
+        $s = 0;
+//        $i = 1;
 
-            while(strtotime($start.'+'.$strtH.' hour') < strtotime($finish)){
-//                $result['test'][] = date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour'))
-//                    .' - '.date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour'));
+        if($interV['hours'] > 0 || $interV['minutes'] > 0 || $interV['seconds'] > 0){
 
-                $addRes = Bitrixfunction::addSlot([
-                    'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
-                        date('d.m.Y H:i:s',strtotime($start.'+'.$strtH.' hour')),
-                        "d.m.Y H:i:s"),
-                    'DATE_TO' => new \Bitrix\Main\Type\DateTime(
-                        date('d.m.Y H:i:s',strtotime($start.'+'.$endH.' hour')),
-                        "d.m.Y H:i:s"),
-                    'USER_ID' => $filters['selectedUserId'],
-                    'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
-                    'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
-                ]);
+            while(strtotime($start.'+'.$h.' hours' .'+'.$m.' minutes'.'+'.$s.' seconds')  < strtotime($finish)){
 
-                ($addRes['result'])
-                    ? $result['result'][] = $addRes['result']
-                    : $result['errors'][] = $addRes['errors'];
+                $dStart = strtotime($start.'+'.$h.' hours ' .'+'.$m.' minutes '.'+'.$s.' seconds ');
+                $dEnd = strtotime($start .'+'.($h + $interV['hours']).' hours '
+                    .'+'.($m + $interV['minutes']).' minutes '
+                    .'+'.($s + $interV['seconds']).' seconds ');
 
-                $strtH++;
-                $endH++;
+                if(
+                    ($dStart >= strtotime(date('d.m.Y',strtotime($start)).' '. $filters['settings']['minTime'])
+                        &&
+                        $dEnd <= strtotime(date('d.m.Y',strtotime($start)).' '. $filters['settings']['maxTime']))
+                    ||
+                    ($dStart >= strtotime(date('d.m.Y',strtotime($finish)).' '. $filters['settings']['minTime'])
+                        &&
+                        $dEnd <= strtotime(date('d.m.Y',strtotime($finish)).' '. $filters['settings']['maxTime']))
+                ){
+//                    $result['preResult'][] = "<br>Дата # $i:<br>".date('d.m.Y H:i:s',$dStart)
+//                        .' - '.
+//                        date('d.m.Y H:i:s',$dEnd);
+
+
+//                    $result['preResult'][] = [
+//                        'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
+//                            date('d.m.Y H:i:s',$dStart), "d.m.Y H:i:s"),
+//                        'DATE_TO' => new \Bitrix\Main\Type\DateTime(
+//                            date('d.m.Y H:i:s',$dEnd), "d.m.Y H:i:s"),
+//                        'USER_ID' => $filters['selectedUserId'],
+//                        'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+//                        'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+//                        'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+//                        'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+//                    ];
+
+
+                    $addRes = Bitrixfunction::addSlot([
+                        'DATE_FROM' => new \Bitrix\Main\Type\DateTime(
+                            date('d.m.Y H:i:s',$dStart),"d.m.Y H:i:s"),
+                        'DATE_TO' => new \Bitrix\Main\Type\DateTime(
+                            date('d.m.Y H:i:s',$dEnd), "d.m.Y H:i:s"),
+                        'USER_ID' => $filters['selectedUserId'],
+                        'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                        'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                        'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+                        'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+                    ]);
+
+                    ($addRes['result'])
+                        ? $result['result'][] = $addRes['result']
+                        : $result['errors'][] = $addRes['errors'];
+
+                }
+
+                $h += $interV['hours'];
+                $m += $interV['minutes'];
+                $s += $interV['seconds'];
+//                $i++;
             }
         }
 
-//        $result['H_interval'] = $intervalHours;
+//        $result['filters_test'] = $filters;
+//        $result['setting'] = date('d.m.Y H:i:s',strtotime($filters['workDayStart']));
+//        $result['intervals'] = $interV;
 
         Bitrixfunction::sentAnswer($result);
     }
@@ -257,6 +309,57 @@ class Calendar{
             'errors' => [],
             'result' => [],
         ];
+
+        //сначала получаем слоты в разрезе начала и окончания текущего слота, исключая текущий
+        //потом для каждого из них ищем слоты из табл. № 2
+        //удаляем слоты в табл. №1, у которых нет дочерних слотов в табл. № 2
+        //если в табл. № 2 дочерние слоты есть, оставляем, пусть перекрещиваются.
+
+//        $result['filt'] = $filters;
+
+        $trainerSlotsInPeriod = [];
+        $trainerSlotsFilter = [
+            'USER_ID' => $filters['employee']['id'],
+            '>=DATE_FROM' => date('d.m.Y H:i:s',strtotime($workDateStart)),
+            '<=DATE_TO' => date('d.m.Y H:i:s',strtotime($workDateFinish)),
+            '!ID' => $slotId,
+        ];
+        $trainerSlotsArr = \Crmgenesis\Slots\SlotTable::getList([
+            'select' => ['ID'],
+            'filter' => $trainerSlotsFilter,
+            'order' => ['ID' => 'ASC'],
+        ]);
+        while($ob = $trainerSlotsArr->fetch()){
+            $res[] = $ob;
+            $trainerSlotsInPeriod[] = $ob['ID'];
+        }
+
+//        $result['test_slots1.0'] = $trainerSlotsInPeriod;
+
+        if($trainerSlotsInPeriod){
+            $subSlots = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $trainerSlotsInPeriod],['OWNER_ID'],['ID' => 'DESC']);
+            if($subSlots){
+                foreach ($subSlots as $subslot)
+                    $position = array_search($subslot['OWNER_ID'],$trainerSlotsInPeriod);
+                if(preg_match('/^[\d]+$/',$position)) //echo "<br>position is $position<br>";
+                    unset($trainerSlotsInPeriod[$position]);
+            }
+
+            if(count($trainerSlotsInPeriod) > 0){
+                foreach ($trainerSlotsInPeriod as $trainerSlot) {
+                    $slotDelRes = Bitrixfunction::deleteSlot($trainerSlot);
+                    if(!$slotDelRes['result']) $result['errors'][] = $slotDelRes['errors'];
+//                    else $result['result'][] = $slotDelRes['result'];
+                }
+
+            }
+
+        }
+
+//        $result['test_slots1.1'] = $trainerSlotsInPeriod;
+//        $result['test_slots2'] = $subSlots;
+
+        //теперь обновляем текущий слот
         $updFields = [
             'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
             'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
@@ -268,14 +371,20 @@ class Calendar{
             'AGE_FROM' => $filters['ageFrom'],
             'AGE_TO' => $filters['ageTo'],
             'GROUP_SIZE' => $filters['groupSize'],
-            'GROUP_NAME' => $filters['groupName'],
+
+            'GROUP_NAME' => $filters['groupId'], //заменить поле на GROUP_ID
+
+            'SERVICE_ID' => $filters['service'],
+
             'USER_ID' => $filters['employee']['id'],
             'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
             'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
         ];
-//        $result = Bitrixfunction::updateSlot($slotId,$updFields);
+////        $result = Bitrixfunction::updateSlot($slotId,$updFields);
+
+
         $slotUpdRes = Bitrixfunction::updateSlot($slotId,$updFields);
-        if(!$slotUpdRes['result']) $result['errors'] = $slotUpdRes['errors'];
+        if(!$slotUpdRes['result']) $result['errors'][] = $slotUpdRes['errors'];
 
         //создаем /обновляем слоты во второй таблице!!!
         else{
@@ -286,7 +395,7 @@ class Calendar{
             if($slotBusinessArr){
                 foreach ($slotBusinessArr as $elem) {
                     $slotBusinessDelRes = Bitrixfunction::deleteSlotBusiness($elem['ID']);
-                    if($slotBusinessDelRes['errors']) $result['errors'] = $slotBusinessDelRes['errors'];
+                    if($slotBusinessDelRes['errors']) $result['errors'][] = $slotBusinessDelRes['errors'];
                 }
             }
             if(!$result['errors'] && count($filters['contacts']) > 0){
@@ -303,7 +412,11 @@ class Calendar{
                             'STATUS_ID' => $defStatusId, //пока не понятно для чего
                             'OWNER_ID' => $slotId,
                             'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
                             'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
+                            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(),
+
+                            'TYPE_ID' => $filters['type'],
                         ]);
 
                         if(!$addBusinessRes['result']) $result['errors'][] = 'Ошибка при удалении/создании элемента в 2й таблицы с ID первой = '.$slotId;
@@ -317,6 +430,7 @@ class Calendar{
 
 
         }
+
 //        $result['userUPDfields'] = $updFields;
 
         Bitrixfunction::sentAnswer($result);
@@ -371,7 +485,15 @@ class Calendar{
                             'GROUP_NAME' => $filters['groupName'],
                             'USER_ID' => $filters['employee']['id'],
                             'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
                             'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
+                            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+
+
+                            'GROUP_NAME' => $filters['groupId'], //заменить поле на GROUP_ID
+
+                            'SERVICE_ID' => $filters['service'],
+
                         ]);
 
 //                        $result['new_test_arr'][] = $addRes;
@@ -386,7 +508,11 @@ class Calendar{
                                         'STATUS_ID' => $defStatusId, //пока не понятно для чего
                                         'OWNER_ID' => $addRes['result'],
                                         'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                                        'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
                                         'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
+                                        'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(),
+
+                                        'TYPE_ID' => $filters['type'],
                                     ]);
 
                                     if(!$addBusinessRes['result']) $result['errors'][] = 'Ошибка при создании элемента в 2й таблицы с ID первой = '.$addRes['result'];
@@ -430,7 +556,9 @@ class Calendar{
                 //!!! ПРИ ЗАМЕНЕ БОКА НА ДРУГОЙ В МАССИВ ДОБВАИТЬ ID слота 2й табл + статус !!! $ob['CLIENT_ARR']
                 $contactData = Bitrixfunction::getContactData(['ID' => $ob['CLIENT_ID']],['ID','NAME','LAST_NAME']);
                 if($contactData) $ob['CLIENT_ARR'] = ['ID' => $contactData['ID'], 'NAME' => $contactData['LAST_NAME'].' '.$contactData['NAME']];
+
             }
+
             $slotsBusinessArr[] = $ob;
         }
         $result['test_business_slots'] = $slotsBusinessArr;

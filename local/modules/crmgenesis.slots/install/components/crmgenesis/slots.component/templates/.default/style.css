@@ -80,6 +80,21 @@
 .my-error-border{
     border-color: #ff0000!important;
 }
+.elems-array{
+    display: flex;
+    /* justify-content: flex-start; */
+    padding-left: 3px;
+}
+.one-elem{
+    display: inline-block;
+    /* padding: .25rem;*/
+    background-color: #13c4f9;
+    color: #fff;
+}
+.one-elem:hover{
+    background-color: #f90004;
+}
+
 
 
 @media (min-width: 1200px){

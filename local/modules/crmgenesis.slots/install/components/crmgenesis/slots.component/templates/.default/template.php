@@ -17,7 +17,11 @@ Asset::getInstance()->addJs("//momentjs.com/downloads/moment-timezone-with-data.
 Asset::getInstance()->addJs("//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/fullcalendar.min.js",true);
 Asset::getInstance()->addJs("//cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.0/locale/ru.js",true);
 Asset::getInstance()->addJs("//cdnjs.cloudflare.com/ajax/libs/fullcalendar-scheduler/1.9.4/scheduler.min.js",true);
-Asset::getInstance()->addJs("//unpkg.com/axios/dist/axios.min.js",true);
+
+//Asset::getInstance()->addJs("//unpkg.com/axios/dist/axios.min.js",true);
+Asset::getInstance()->addJs("https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js",true);
+
+
 Asset::getInstance()->addJs("//stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js",true);
 Asset::getInstance()->addJs("//cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js",true);
 //Multiselect component
@@ -51,9 +55,9 @@ Asset::getInstance()->addCss("https://unpkg.com/vue-multiselect@2.1.0/dist/vue-m
 
             <div class="filters col-12 text-center p-2 row align-items-center">
                 <div class="col-3">
-                    <label for="employee">Сотрудник:</label></div>
+                    <label for="employee-main">Сотрудник:</label></div>
                 <div class="col-9">
-                    <input type="text" class="form-control" id="employee"
+                    <input type="text" class="form-control" id="employee-main"
                            :disabled="(isAdmin > 0) ? false : true"
                            @keyup="userFilter"
                            v-model="selectedUser.name" autofocus>

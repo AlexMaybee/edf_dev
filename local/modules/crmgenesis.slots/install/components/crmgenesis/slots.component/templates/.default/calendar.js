@@ -14,7 +14,7 @@ Vue.component('calendar', {
         settings: {
             type: Object,
             required: false,
-            default: {minTime: '07:00:00', maxTime: '22:30:00', slotDuration: '00:30:00'},
+            default: {minTime: '07:00:00', maxTime: '22:45:00', slotDuration: '00:15:00'},
         },
 
         editable: {
