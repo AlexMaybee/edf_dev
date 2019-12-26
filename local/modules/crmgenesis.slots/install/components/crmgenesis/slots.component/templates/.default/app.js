@@ -124,6 +124,7 @@ let app = new Vue({
                 zona: '',
                 workDayStart: '',
                 workDayFinish: '',
+                phpError: [],
             },
 
 
@@ -357,6 +358,10 @@ let app = new Vue({
 
             if(this.seletedSlotId > 0)
                 this.getSlotData();
+
+
+            //функция фильтра услуг по id выбранного в попап пользователя
+            this.gspServiceFilterByEmployee();
 
             $('#gspModal').modal('show');
         },
@@ -632,32 +637,20 @@ let app = new Vue({
 
         gspLocationFilterByZone: function () {
             let locations = this.filterValueLists.slotLocationList,
-                services = this.filterValueLists.slotServiceList,
                 selectedZone = this.slotFilters.zone;
 
             this.slotFilters.location = 0;
             this.slotFilters.groupId = 0;
-
-            // this.slotFilters.groupId = 0;
 
             if(selectedZone > 0){
                 this.filterValueLists.slotSortedLocationList = locations.filter(function (elem) {
                     if(selectedZone === '') return true;
                     else return elem.PROPERTY_308_VALUE.indexOf(selectedZone) > -1;
                 });
-
-                //slotSortedServiceList
-                this.filterValueLists.slotSortedServiceList = services.filter(function (elem) {
-                    if(selectedZone === '') return true;
-                    else return elem.PROPERTY_322_VALUE.indexOf(selectedZone) > -1;
-                });
-
-                console.log('zzzones',this.filterValueLists.slotSortedServiceList);
             }
             else {
                 this.filterValueLists.slotSortedLocationList = [];
                 this.filterValueLists.slotSortedTrainingGroupList = [];
-                this.filterValueLists.slotSortedServiceList = [];
             }
 
             // console.log('filtered locations:',this.filterValueLists.slotSortedLocationList);
@@ -681,10 +674,32 @@ let app = new Vue({
             else this.filterValueLists.slotSortedTrainingGroupList = [];
         },
 
+        //функция фильтра услуг по id выбранного в попап пользователя
+        gspServiceFilterByEmployee: function(){
+            let services = this.filterValueLists.slotServiceList,
+                selectedEmployee = this.slotFilters.employee.id;
+
+            // console.log('SERVICE SORT',selectedEmployee);
+
+            if(selectedEmployee > 0){
+                this.filterValueLists.slotSortedServiceList = services.filter(function (elem) {
+                    if(selectedEmployee === '') return true;
+                    else return elem.PROPERTY_320_VALUE.indexOf(selectedEmployee) > -1;
+                });
+            }
+            else this.filterValueLists.slotSortedTrainingGroupList = [];
+        },
+
         //сборс ошибок у выбранного объекта с ошибками
         resetValidateErrors: function(obj){
             $.each(obj, function (key,val) {
-                obj[key] = '';
+
+                if(typeof(obj[key]) == 'string')
+                    obj[key] = '';
+                if(typeof(obj[key]) == 'array')
+                    obj[key] = [];
+                if(typeof(obj[key]) == 'object')
+                    obj[key] = {};
                 // console.log(key,val);
             });
         },
@@ -722,13 +737,18 @@ let app = new Vue({
 
             //dateTimeRegExp
 
+            // console.log('test_L',slotFinish.diff(slotStart,'minutes'));
+            // console.log('test_TYPE',typeof slotFinish.diff(slotStart,'minutes'));
+            // console.log('test_OOO',parseInt(slotFinish.diff(slotStart,'minutes')));
+
             // if(this.slotFilters.type in this.typeIdVal){
-                if(
-                    dateTimeRegExp.test(this.workDayStart.trim()) &&
-                    dateTimeRegExp.test(this.workDayFinish.trim()) &&
-                    slotStart.diff(slotFinish,'days') != 0
-                )
-                    this.slotValidateErrors.workDayStart = 'Даты начала и окончания должны быть в 1 день!';
+            if(this.seletedSlotId > 0){
+                // if(
+                //     dateTimeRegExp.test(this.workDayStart.trim()) &&
+                //     dateTimeRegExp.test(this.workDayFinish.trim()) &&
+                //     slotFinish.diff(slotStart,'hours') <= 0
+                // )
+                //     this.slotValidateErrors.workDayStart = 'Даты начала и окончания должны быть в 1 день!';
                 
                 if(!dateTimeRegExp.test(this.workDayStart.trim()))
                     this.slotValidateErrors.workDayStart = 'Укажите дату и время начала слота!';
@@ -736,12 +756,20 @@ let app = new Vue({
                 if(
                     dateTimeRegExp.test(this.workDayStart.trim()) &&
                     dateTimeRegExp.test(this.workDayFinish.trim()) &&
-                    slotFinish.diff(slotStart,'days') != 0
+                    slotFinish.diff(slotStart,'minutes') <= 0
                 )
-                    this.slotValidateErrors.workDayFinish = 'Даты начала и окончания должны быть в 1 день!';
+                    this.slotValidateErrors.workDayFinish = 'Неверная дата окончания!';
+
+                if(
+                    dateTimeRegExp.test(this.workDayStart.trim()) &&
+                    dateTimeRegExp.test(this.workDayFinish.trim()) &&
+                    slotFinish.diff(slotStart,'minutes') > (16*60) //16 часов по 60 мин
+                )
+                    this.slotValidateErrors.workDayFinish = 'Слот не может занимать больше одного дня!';
+
                 if(!dateTimeRegExp.test(this.workDayFinish.trim()))
                     this.slotValidateErrors.workDayFinish = 'Укажите дату и время окончания слота!';
-            // }
+            }
 
 
 
@@ -834,8 +862,12 @@ let app = new Vue({
 
             // if(this.slotFilters.durationMins <= 0 )
             if(!integerReqExp.test(this.slotFilters.durationMins) ||
-                (integerReqExp.test(this.slotFilters.durationMins) && this.slotFilters.durationMins <= 0 ))
+                (integerReqExp.test(this.slotFilters.durationMins) && this.slotFilters.durationMins == 0 ))
                 this.slotValidateErrors.durationMins = 'Укажите Длительность в минутах!';
+
+            if(!integerReqExp.test(this.slotFilters.durationMins) ||
+                (integerReqExp.test(this.slotFilters.durationMins) && this.slotFilters.durationMins < 0))
+            this.slotValidateErrors.durationMins = 'Длительность не может отрицательной!';
 
             // if(this.slotFilters.employee.id <= 0 )
             if(!integerReqExp.test(this.slotFilters.employee.id) ||
@@ -931,7 +963,8 @@ let app = new Vue({
 
                 console.log('updateSlot: ',response.data)
 
-                if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+                if(response.data.errors.length > 0) // console.log('v-ERROR:',response.data.errors);
+                    this.slotValidateErrors.phperror = response.data.errors;
                 else{
                     $('#gspModal').modal('hide');
                     this.resetGspPopupFields();
@@ -971,15 +1004,35 @@ let app = new Vue({
         },
 
         changeDateByDragNDrop: function (start,finish,id) {
+            let self = this;
+
             axios.post(this.request_url,
                 {action:'changeDateByDragNDrop',
                     slotId: id,
                     workDayStart: start,
                     workDayFinish: finish,
+                    selectedUserId: this.selectedUser.id,
                 }).then(response => {
 
                 console.log('changeDateByDragNDrop: ',response.data)
-                if(response.data.errors.length > 0) console.log('v-ERROR:',response.data.errors);
+                if(response.data.errors.length > 0) {
+                    // console.log('v-ERROR:',response.data.errors);
+
+                    this.info = {
+                        buttonSuccessText: "",
+                        buttonRejectText: "Отмена",
+                        modalTitle: "Внимание!",
+                        popupClass: 'alert alert-danger text-center',
+                        rejectFunction: this.clearInfoParams,
+                        successFunction: "",
+                        text: "",
+                    };
+                    $.each(response.data.errors, function (index,err) {
+                        self.info.text += err + "\n";
+                    });
+
+                    $('#infoModalCenter').modal('show');
+                }
                 this.getUserSlots();
             }).catch(err => console.log(err));
 
@@ -1009,7 +1062,7 @@ let app = new Vue({
 
             this.slotFilters.durationMins = this.deleteStringSymbols(this.slotFilters.durationMins);
 
-            let duration = parseInt(this.deleteStringSymbols(this.slotFilters.durationMins)),
+            let duration = parseInt(this.slotFilters.durationMins),
 
                 dateStart = moment(this.workDayStart),
                 dateFinish = moment(this.workDayFinish),

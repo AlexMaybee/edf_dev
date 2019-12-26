@@ -310,6 +310,11 @@ class Calendar{
             'result' => [],
         ];
 
+        //UPD 25.12.2019
+        //Нужен запрет изменения если даты затрагивают уже занятый клиентами слот.
+
+
+        //ОТМЕНА!!!
         //сначала получаем слоты в разрезе начала и окончания текущего слота, исключая текущий
         //потом для каждого из них ищем слоты из табл. № 2
         //удаляем слоты в табл. №1, у которых нет дочерних слотов в табл. № 2
@@ -317,119 +322,152 @@ class Calendar{
 
 //        $result['filt'] = $filters;
 
-        $trainerSlotsInPeriod = [];
+//        $trainerSlotsInPeriod = [];
+        $trainerEmptySlots = [];
         $trainerSlotsFilter = [
             'USER_ID' => $filters['employee']['id'],
             '>=DATE_FROM' => date('d.m.Y H:i:s',strtotime($workDateStart)),
-            '<=DATE_TO' => date('d.m.Y H:i:s',strtotime($workDateFinish)),
+            '<DATE_FROM' => date('d.m.Y H:i:s',strtotime($workDateFinish)),
+//            '<=DATE_TO' => date('d.m.Y H:i:s',strtotime($workDateFinish)),
             '!ID' => $slotId,
         ];
         $trainerSlotsArr = \Crmgenesis\Slots\SlotTable::getList([
-            'select' => ['ID'],
+            'select' => ['ID','DATE_FROM','DATE_TO'],
             'filter' => $trainerSlotsFilter,
             'order' => ['ID' => 'ASC'],
         ]);
         while($ob = $trainerSlotsArr->fetch()){
-            $res[] = $ob;
-            $trainerSlotsInPeriod[] = $ob['ID'];
+//            $res[] = $ob;
+//            $trainerSlotsInPeriod[] = $ob['ID'];
+
+
+            $subslotArr = \Crmgenesis\Slots\Slot_businessTable::getList([
+                'select' => ['*'],//['ID','OWNER_ID'],
+                'filter' => ['OWNER_ID' => $ob['ID']],
+                'order' => ['ID' => 'ASC'],
+            ])->fetchAll();
+
+            if($subslotArr) {
+
+                $result['errors'][] = Loc::getMessage('CRM_GENESIS_CALENDAR_GET_CLICKED_SLOT_CHECK_IF_NOT_EMPTY_ERROR',[
+                    '#START#' => date('d.m.Y H:i:s',strtotime($ob['DATE_FROM'])),
+                    '#END#' => date('d.m.Y H:i:s',strtotime($ob['DATE_TO'])),
+                ]);
+            }
+            else
+                $trainerEmptySlots[] = $ob['ID'];
         }
 
 //        $result['test_slots1.0'] = $trainerSlotsInPeriod;
 
-        if($trainerSlotsInPeriod){
-            $subSlots = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $trainerSlotsInPeriod],['OWNER_ID'],['ID' => 'DESC']);
-            if($subSlots){
-                foreach ($subSlots as $subslot)
-                    $position = array_search($subslot['OWNER_ID'],$trainerSlotsInPeriod);
-                if(preg_match('/^[\d]+$/',$position)) //echo "<br>position is $position<br>";
-                    unset($trainerSlotsInPeriod[$position]);
-            }
-
-            if(count($trainerSlotsInPeriod) > 0){
-                foreach ($trainerSlotsInPeriod as $trainerSlot) {
-                    $slotDelRes = Bitrixfunction::deleteSlot($trainerSlot);
-                    if(!$slotDelRes['result']) $result['errors'][] = $slotDelRes['errors'];
-//                    else $result['result'][] = $slotDelRes['result'];
-                }
-
-            }
-
-        }
+//        if($trainerSlotsInPeriod){
+//            $subSlots = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $trainerSlotsInPeriod],['OWNER_ID'],['ID' => 'DESC']);
+//            if($subSlots){
+//                foreach ($subSlots as $subslot)
+//                    $position = array_search($subslot['OWNER_ID'],$trainerSlotsInPeriod);
+//                if(preg_match('/^[\d]+$/',$position)) //echo "<br>position is $position<br>";
+//                    unset($trainerSlotsInPeriod[$position]);
+//            }
+//
+//            if(count($trainerSlotsInPeriod) > 0){
+//                foreach ($trainerSlotsInPeriod as $trainerSlot) {
+//                    $slotDelRes = Bitrixfunction::deleteSlot($trainerSlot);
+//                    if(!$slotDelRes['result']) $result['errors'][] = $slotDelRes['errors'];
+////                    else $result['result'][] = $slotDelRes['result'];
+//                }
+//
+//            }
+//
+//        }
 
 //        $result['test_slots1.1'] = $trainerSlotsInPeriod;
 //        $result['test_slots2'] = $subSlots;
 
-        //теперь обновляем текущий слот
-        $updFields = [
-            'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
-            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
-            'STATUS_ID' => 0, //пока не понятно для чего
-            'TYPE_ID' => $filters['type'],
-            'CLUB_ID' => $filters['club'],
-            'ZONE_ID' => $filters['zone'],
-            'LOCATION_ID' => $filters['location'],
-            'AGE_FROM' => $filters['ageFrom'],
-            'AGE_TO' => $filters['ageTo'],
-            'GROUP_SIZE' => $filters['groupSize'],
-
-            'GROUP_NAME' => $filters['groupId'], //заменить поле на GROUP_ID
-
-            'SERVICE_ID' => $filters['service'],
-
-            'USER_ID' => $filters['employee']['id'],
-            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
-            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
-        ];
-////        $result = Bitrixfunction::updateSlot($slotId,$updFields);
-
-
-        $slotUpdRes = Bitrixfunction::updateSlot($slotId,$updFields);
-        if(!$slotUpdRes['result']) $result['errors'][] = $slotUpdRes['errors'];
-
-        //создаем /обновляем слоты во второй таблице!!!
-        else{
-            $slotBusinessArr = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $slotId],['ID','CLIENT_ID']);
-
-            //если есть уже созданные слоты, то удаляем и вместо создаем новые !!!
-            //ЭТО ВРЕМЕННАЯ МЕРА!!!
-            if($slotBusinessArr){
-                foreach ($slotBusinessArr as $elem) {
-                    $slotBusinessDelRes = Bitrixfunction::deleteSlotBusiness($elem['ID']);
-                    if($slotBusinessDelRes['errors']) $result['errors'][] = $slotBusinessDelRes['errors'];
+        //25.12.2019 Если ошибок от пересечения с занятыми нет, то удаляем пустые слоты и обновляем редактируемый
+        if(!$result['errors']){
+            foreach ($trainerEmptySlots as $emptySlot) {
+                    $slotDelRes = Bitrixfunction::deleteSlot($emptySlot);
+                    if(!$slotDelRes['result']) $result['errors'][] = $slotDelRes['errors'];
+//                    else $result['result'][] = $slotDelRes['result'];
                 }
-            }
-            if(!$result['errors'] && count($filters['contacts']) > 0){
 
-                if(count($filters['contacts']) > 0){
+            if(!$result['errors']){
+                //теперь обновляем текущий слот
+                $updFields = [
+                    'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
+                    'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
+                    'STATUS_ID' => 0, //пока не понятно для чего
+                    'TYPE_ID' => $filters['type'],
+                    'CLUB_ID' => $filters['club'],
+                    'ZONE_ID' => $filters['zone'],
+                    'LOCATION_ID' => $filters['location'],
+                    'AGE_FROM' => $filters['ageFrom'],
+                    'AGE_TO' => $filters['ageTo'],
+                    'GROUP_SIZE' => $filters['groupSize'],
 
-                    $defStatusId = Bitrixfunction::getCoptionValue('SLOT_DEFAULT_STATUS');
+                    'GROUP_NAME' => $filters['groupId'], //заменить поле на GROUP_ID
 
-                    foreach ($filters['contacts'] as $contact){
-                        $addBusinessRes = Bitrixfunction::addSlotBusiness([
-                            'CLIENT_ID' => $contact['ID'], //ID каждого клиента
-                            'DATE_FROM' =>  new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
-                            'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
-                            'STATUS_ID' => $defStatusId, //пока не понятно для чего
-                            'OWNER_ID' => $slotId,
-                            'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
-                            'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
-                            'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
-                            'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(),
+                    'SERVICE_ID' => $filters['service'],
 
-                            'TYPE_ID' => $filters['type'],
-                        ]);
+                    'USER_ID' => $filters['employee']['id'],
+                    'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                    'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+                ];
 
-                        if(!$addBusinessRes['result']) $result['errors'][] = 'Ошибка при удалении/создании элемента в 2й таблицы с ID первой = '.$slotId;
-                        else $result['result'][] = $addBusinessRes['result'];
+                $slotUpdRes = Bitrixfunction::updateSlot($slotId,$updFields);
+                if(!$slotUpdRes['result']) $result['errors'][] = $slotUpdRes['errors'];
+
+                //создаем /обновляем слоты во второй таблице!!!
+                else{
+                    $slotBusinessArr = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $slotId],['ID','CLIENT_ID']);
+
+                    //если есть уже созданные слоты, то удаляем и вместо создаем новые !!!
+                    //ЭТО ВРЕМЕННАЯ МЕРА!!!
+                    if($slotBusinessArr){
+                        foreach ($slotBusinessArr as $elem) {
+                            $slotBusinessDelRes = Bitrixfunction::deleteSlotBusiness($elem['ID']);
+                            if($slotBusinessDelRes['errors']) $result['errors'][] = $slotBusinessDelRes['errors'];
+                        }
+                    }
+                    if(!$result['errors'] && count($filters['contacts']) > 0){
+
+                        if(count($filters['contacts']) > 0){
+
+                            $defStatusId = Bitrixfunction::getCoptionValue('SLOT_DEFAULT_STATUS');
+
+                            foreach ($filters['contacts'] as $contact){
+                                $addBusinessRes = Bitrixfunction::addSlotBusiness([
+                                    'CLIENT_ID' => $contact['ID'], //ID каждого клиента
+                                    'DATE_FROM' =>  new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
+                                    'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
+                                    'STATUS_ID' => $defStatusId, //пока не понятно для чего
+                                    'OWNER_ID' => $slotId,
+                                    'DATE_CREATE' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                                    'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                                    'CREATED_BY_ID' => Bitrixfunction::returnCurUserId(),
+                                    'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(),
+
+                                    'TYPE_ID' => $filters['type'],
+                                ]);
+
+                                if(!$addBusinessRes['result'])
+//                                    $result['errors'][] = 'Ошибка при удалении/создании элемента в 2й таблицы с ID первой = '.$slotId;
+                                    $result['errors'] = array_merge($addBusinessRes['errors'],$result['errors']);
+                                else $result['result'][] = $addBusinessRes['result'];
+                            }
+                        }
+                        else
+                            $result['errors'][] = 'Нельзя создать слоты 2й таблицы без контактов, слот 1й таблицы № '.$slotId;
+
                     }
                 }
-                else
-                    $result['errors'][] = 'Нельзя создать слоты 2й таблицы без контактов, слот 1й таблицы № '.$slotId;
-
             }
 
 
         }
+
+
+
 
 //        $result['userUPDfields'] = $updFields;
 
@@ -646,37 +684,68 @@ class Calendar{
      @method: change date by drag slot in calendar
      @return: array
      * */
-    public function changeDateByDragNDrop($slotId,$workDateStart,$workDateFinish){
+    public function changeDateByDragNDrop($slotId,$workDateStart,$workDateFinish,$selectedUserId){
         $result = [
             'errors' => [],
             'result' => [],
-//            'result' => [$slotId,$workDateStart,$workDateFinish],
         ];
 
-        $slotsBusinessArr = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $slotId],['ID']);
-        if($slotsBusinessArr)
-            foreach ($slotsBusinessArr as $slotBusiness){
-                $slotBusinessUpdFields = [
+        $trainerSlotsFilter = [
+            'USER_ID' => $selectedUserId,
+            '>=DATE_FROM' => date('d.m.Y H:i:s',strtotime($workDateStart)),
+            '<DATE_FROM' => date('d.m.Y H:i:s',strtotime($workDateFinish)),
+            '!ID' => $slotId,
+
+//            'LOGIC' => 'OR',
+//            [],[]
+        ];
+        $trainerSlotsArr = \Crmgenesis\Slots\SlotTable::getList([
+            'select' => ['ID','DATE_FROM','DATE_TO'],
+            'filter' => $trainerSlotsFilter,
+            'order' => ['ID' => 'ASC'],
+        ]);
+
+        $siblingSlots = [];
+        while($ob = $trainerSlotsArr->fetch()){
+            $ob['DATE_FROM'] = date('d.m.Y H:i:s',strtotime($ob['DATE_FROM']));
+            $ob['DATE_TO'] = date('d.m.Y H:i:s',strtotime($ob['DATE_TO']));
+            $siblingSlots[] = $ob;
+        }
+
+
+        if($siblingSlots){
+                $result['errors'][] = Loc::getMessage('CRM_GENESIS_CALENDAR_GET_DRAG_N_DROP_SLOT_CHECK_IF_NOT_EMPTY_ERROR');
+        }
+        else{
+            $slotsBusinessArr = Bitrixfunction::getSlotBusinessList(['OWNER_ID' => $slotId],['ID']);
+            if($slotsBusinessArr)
+                foreach ($slotsBusinessArr as $slotBusiness){
+                    $slotBusinessUpdFields = [
+                        'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
+                        'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
+                        'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
+                        'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
+                    ];
+                    $slotBusinessUpdRes = Bitrixfunction::updateSlotBusiness($slotBusiness['ID'],$slotBusinessUpdFields);
+                    if(!$slotBusinessUpdRes['result']) $result['errors'][] = $slotBusinessUpdRes['errors'];
+                }
+
+
+            if(!$result['errors']){
+                $updFields = [
                     'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
                     'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
                     'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
                     'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
                 ];
-                $slotBusinessUpdRes = Bitrixfunction::updateSlotBusiness($slotBusiness['ID'],$slotBusinessUpdFields);
-                if(!$slotBusinessUpdRes['result']) $result['errors'][] = $slotBusinessUpdRes['errors'];
+                $result = Bitrixfunction::updateSlot($slotId,$updFields);
+
             }
-
-
-        if(!$result['errors']){
-            $updFields = [
-                'DATE_FROM' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateStart)),"d.m.Y H:i:s"),
-                'DATE_TO' => new \Bitrix\Main\Type\DateTime(date('d.m.Y H:i:s',strtotime($workDateFinish)),"d.m.Y H:i:s"),
-                'DATE_MODIFY' => new \Bitrix\Main\Type\DateTime( date("d.m.Y H:i:s"), "d.m.Y H:i:s" ),
-                'MODIFY_BY_ID' => Bitrixfunction::returnCurUserId(), //returnCurUserId
-            ];
-            $result = Bitrixfunction::updateSlot($slotId,$updFields);
         }
 
+
+//        $result['test'] = [$slotId,$workDateStart,$workDateFinish,$selectedUserId];
+        $result['OTHER_SLOTS'] = $siblingSlots;
 
 //        $result['test_buu'] = $slotsBusinessArr;
 

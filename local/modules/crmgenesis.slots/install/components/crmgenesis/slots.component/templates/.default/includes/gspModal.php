@@ -37,10 +37,10 @@
                                            type="datetime-local" class="form-control" id="group-start-to">
                                 </div>
                             </div>
-                            <div class="col-12 mb-3">
+                           <!-- <div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.workDayStart.length > 0" class="my-error">{{slotValidateErrors.workDayStart}}</div>
                                 <div v-show="slotValidateErrors.workDayFinish.length > 0" class="my-error">{{slotValidateErrors.workDayFinish}}</div>
-                            </div>
+                            </div>-->
 
                         </div>
 
@@ -79,10 +79,10 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 mb-3">
+                            <!--<div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.employee.length > 0" class="my-error">{{slotValidateErrors.employee}}</div>
                                 <div v-show="slotValidateErrors.groupSize.length > 0" class="my-error">{{slotValidateErrors.groupSize}}</div>
-                            </div>
+                            </div>-->
                         </div>
 
                         <div class="row">
@@ -117,10 +117,10 @@
                                 </div>
                             </div>
 
-                            <div class="col-12 mb-3">
+                            <!--<div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.type.length > 0" class="my-error">{{slotValidateErrors.type}}</div>
                                 <div v-show="slotValidateErrors.durationMins.length > 0" class="my-error">{{slotValidateErrors.durationMins}}</div>
-                            </div>
+                            </div>-->
                         </div>
 
                         <div class="row">
@@ -167,11 +167,11 @@
                                 </template>
 
                             </div>
-                            <div class="col-12 mb-3">
+                         <!--   <div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.club.length > 0" class="my-error">{{slotValidateErrors.club}}</div>
                                 <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error col-12">{{slotValidateErrors.ageFrom}}</div>
                                 <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error col-12">{{slotValidateErrors.ageTo}}</div>
-                            </div>
+                            </div>-->
 
                         </div>
 
@@ -217,11 +217,11 @@
                                 </template>
                             </div>
 
-                            <div class="col-12 mb-3">
+                           <!-- <div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.zona.length > 0" class="my-error">{{slotValidateErrors.zona}}</div>
                                 <div v-show="slotValidateErrors.periodFrom.length > 0" class="my-error">{{slotValidateErrors.periodFrom}}</div>
                                 <div v-show="slotValidateErrors.periodTo.length > 0" class="my-error">{{slotValidateErrors.periodTo}}</div>
-                            </div>
+                            </div>-->
 
                         </div>
 
@@ -243,7 +243,7 @@
                                                 @change="gspLocationFilterByZone" class="form-control" id="zone">
                                             <option selected value="0">Не выбрано</option>
                                             <template v-if="filterValueLists.slotSortedServiceList.length > 0" >
-                                                <option v-for="service in filterValueLists.slotSortedServiceList" :value="service.ID">{{service.NAME}}</option>
+                                                <option v-for="service in filterValueLists.slotSortedServiceList" :value="service.ID">{{service.MY_PRODUCT_NAME}}</option>
                                             </template>
                                         </select>
                                     </div>
@@ -251,9 +251,9 @@
 
                                 <div class="form-group col row align-items-center"></div>
 
-                                <div class="col-12 mb-3">
+                                <!--<div class="col-12 mb-3">
                                     <div v-show="slotValidateErrors.service.length > 0" class="my-error">{{slotValidateErrors.service}}</div>
-                                </div>
+                                </div>-->
 
                             </template>
 
@@ -301,9 +301,9 @@
 
                                 </div>
 
-                                <div class="col-12 mb-3">
+                                <!--<div class="col-12 mb-3">
                                     <div v-show="slotValidateErrors.products.length > 0" class="my-error">{{slotValidateErrors.products}}</div>
-                                </div>
+                                </div>-->
 
                             </template>
 
@@ -384,10 +384,10 @@
 <!--                                :noResult="showContactsMaxLimitError"-->
                             </div>
 
-                            <div class="col-12 mb-3">
+                            <!--<div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.location.length > 0" class="my-error">{{slotValidateErrors.location}}</div>
                                 <div v-show="slotValidateErrors.contacts.length > 0" class="my-error">{{slotValidateErrors.contacts}}</div>
-                            </div>
+                            </div>-->
 
                         </div>
 
@@ -419,9 +419,9 @@
 
                             <div class="form-group col row align-items-center"></div>
 
-                            <div class="col-12 mb-3">
-                                <div v-show="slotValidateErrors.groupId.length > 0" class="my-error">{{slotValidateErrors.groupId}}</div>
-                            </div>
+<!--                            <div class="col-12 mb-3">-->
+<!--                                <div v-show="slotValidateErrors.groupId.length > 0" class="my-error">{{slotValidateErrors.groupId}}</div>-->
+<!--                            </div>-->
 
                         </div>
 
@@ -453,9 +453,34 @@
                             </template>
 
 
-                            <div class="col-12 mb-3">
+                            <!--<div class="col-12 mb-3">
                                 <div v-show="slotValidateErrors.groupName.length > 0" class="my-error">{{slotValidateErrors.groupName}}</div>
-                            </div>
+                            </div>-->
+                        </div>
+
+                        <div class="col-12 mb-3 text-center">
+                            <div class="my-error" v-show="slotValidateErrors.phperror.length > 0"
+                                 v-for="error in slotValidateErrors.phperror">{{error}}</div>
+
+                            <div v-show="slotValidateErrors.workDayStart.length > 0" class="my-error">{{slotValidateErrors.workDayStart}}</div>
+                            <div v-show="slotValidateErrors.workDayFinish.length > 0" class="my-error">{{slotValidateErrors.workDayFinish}}</div>
+                            <div v-show="slotValidateErrors.employee.length > 0" class="my-error">{{slotValidateErrors.employee}}</div>
+                            <div v-show="slotValidateErrors.groupSize.length > 0" class="my-error">{{slotValidateErrors.groupSize}}</div>
+                            <div v-show="slotValidateErrors.type.length > 0" class="my-error">{{slotValidateErrors.type}}</div>
+                            <div v-show="slotValidateErrors.durationMins.length > 0" class="my-error">{{slotValidateErrors.durationMins}}</div>
+                            <div v-show="slotValidateErrors.club.length > 0" class="my-error">{{slotValidateErrors.club}}</div>
+                            <div v-show="slotValidateErrors.ageFrom.length > 0" class="my-error col-12">{{slotValidateErrors.ageFrom}}</div>
+                            <div v-show="slotValidateErrors.ageTo.length > 0" class="my-error col-12">{{slotValidateErrors.ageTo}}</div>
+                            <div v-show="slotValidateErrors.zona.length > 0" class="my-error">{{slotValidateErrors.zona}}</div>
+                            <div v-show="slotValidateErrors.periodFrom.length > 0" class="my-error">{{slotValidateErrors.periodFrom}}</div>
+                            <div v-show="slotValidateErrors.periodTo.length > 0" class="my-error">{{slotValidateErrors.periodTo}}</div>
+                            <div v-show="slotValidateErrors.service.length > 0" class="my-error">{{slotValidateErrors.service}}</div>
+                            <div v-show="slotValidateErrors.products.length > 0" class="my-error">{{slotValidateErrors.products}}</div>
+                            <div v-show="slotValidateErrors.location.length > 0" class="my-error">{{slotValidateErrors.location}}</div>
+                            <div v-show="slotValidateErrors.contacts.length > 0" class="my-error">{{slotValidateErrors.contacts}}</div>
+                            <div v-show="slotValidateErrors.groupId.length > 0" class="my-error">{{slotValidateErrors.groupId}}</div>
+                            <div v-show="slotValidateErrors.groupName.length > 0" class="my-error">{{slotValidateErrors.groupName}}</div>
+                            <div v-show="slotValidateErrors.checkboxes.length > 0" class="my-error">{{slotValidateErrors.checkboxes}}</div>
                         </div>
 
                         {{slotFilters.contacts}}
@@ -466,7 +491,7 @@
                             <div class="col-md-12">
 
                                 <div>{{slotSelectedCheckboxes}}</div>
-                                <div v-show="slotValidateErrors.checkboxes.length > 0" class="my-error">{{slotValidateErrors.checkboxes}}</div>
+                                <!--<div v-show="slotValidateErrors.checkboxes.length > 0" class="my-error">{{slotValidateErrors.checkboxes}}</div>-->
                                 <table class="table my-shedule-table text-center overflow-hidden"
                                        :class="{'my-bg-error': slotValidateErrors.checkboxes.length > 0}">
                                     <thead>

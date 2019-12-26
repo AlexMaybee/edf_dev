@@ -128,8 +128,8 @@ Vue.component('info-popup-component', {
                        <h4>{{text}}</h4>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" @click="rejectfunctn" class="btn btn-secondary" data-dismiss="modal">{{buttonRejectText}}</button>
-                        <button type="button" @click="successfunctn" class="btn btn-primary">{{buttonSuccessText}}</button>
+                        <button type="button" v-if="rejectfunctn" @click="rejectfunctn" class="btn btn-secondary" data-dismiss="modal">{{buttonRejectText}}</button>
+                        <button type="button" v-if="successfunctn" @click="successfunctn" class="btn btn-primary">{{buttonSuccessText}}</button>
                     </div>
                 </div>
             </div>

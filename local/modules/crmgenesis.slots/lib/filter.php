@@ -205,42 +205,41 @@ class Filter{
         else{
 
             $serviceList = Bitrixfunction::getListElemsOld(
-                ['IBLOCK_ID' => $serviceListId, '!PROPERTY_322' => false],['ID','NAME','PROPERTY_322'], ['DATE_CREATE' => 'DESC']
+                ['IBLOCK_ID' => $serviceListId, '!PROPERTY_324' => false],['ID','NAME','PROPERTY_320','PROPERTY_324'], ['DATE_CREATE' => 'DESC']
             );
+            
+            if(!$serviceList) Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_RESULT_ERROR');
+            else{
 
+                $productIds = [];
+                foreach ($serviceList as $service){
+                    if($service['PROPERTY_324_VALUE'])
+                        $productIds[] = $service['PROPERTY_324_VALUE'];
+                }
 
-//            if($serviceList){
-//
-//                $wholeResult = [];
-//
-//                $serviceListByEmployee = Bitrixfunction::getListElemsOld(
-//                    ['IBLOCK_ID' => 58, '!PROPERTY_323' => false],['ID','NAME','PROPERTY_320','PROPERTY_323'], ['DATE_CREATE' => 'DESC']
-//                );
-//                if(!$serviceListByEmployee) Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_BY_USERS_RESULT_ERROR');
-//                else {
-//                        foreach ($serviceList as $service){
-//
-//                            foreach ($serviceListByEmployee as $sortedBy){
-//                                if($service['PROPERTY_322_VALUE'] == $sortedBy['PROPERTY_323']){
-//                                    $service['CURRENT_USER_ID'] = $sortedBy['PROPERTY_320_VALUE'];
-//                                    $wholeResult[] = $service;
-//                                }
-//
-//                            }
-//
-//                        }
-//                }
-//                $result['test_kkk'] = $serviceListByEmployee;
-//                $result['test_DDD'] = $wholeResult;
-//
-//            }
+                if($productIds){
+                    $productListT = Bitrixfunction::getListElemsOld(
+                        ['IBLOCK_ID' => self::PRODUCT_CATALOG_ID, 'ID' => $productIds],['ID','NAME'],
+                        ['DATE_CREATE' => 'DESC']);
 
-//            $serviceList = Bitrixfunction::getListElements(
-//                ['IBLOCK_ID' => $serviceListId],['ID','NAME','PROPERTY_322'],['DATE_CREATE' => 'DESC']
-//            );
-            (!$serviceList)
-                ? $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_SERVICE_LIST_RESULT_ERROR')
-                :$result['serviceList'] = $serviceList;
+                    if(!$productListT) $result['errors'][] = Loc::getMessage('CRM_GENESIS_C_OPTION_GET_PRODUCTS_BY_SERVICE_LIST_RESULT_ERROR');
+                    else{
+
+                        foreach($productListT as $product){
+                            foreach ($serviceList as $service){
+                                $service['MY_PRODUCT_NAME'] = '';
+                                if($service['PROPERTY_324_VALUE'] == $product['ID']) {
+                                    $service['MY_PRODUCT_NAME'] = $product['NAME'];
+                                    $result['serviceList'][] = $service;
+                                }
+                            }
+                        }
+                    }
+                }
+
+//                $result['testProducts-list'] = $productListT;
+            }
+
         }
 
         //список групповых тренировок
